@@ -13,7 +13,8 @@ https://github.com/JuliaImageRecon/ImageGeoms.jl
 This repo exports the type `ImageGeom`
 and corresponding constructor methods.
 
-For an explanation see the
+For an explanation see the documentation
+using the blue "docs" links above.
 
 ### Getting started
 
