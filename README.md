@@ -15,7 +15,7 @@ and corresponding constructor methods.
 
 For an explanation see the
 
-## Getting started
+### Getting started
 
 ```julia
 using Pkg
@@ -23,7 +23,7 @@ Pkg.add("ImageGeoms")
 ```
 
 
-## Example
+### Example
 
 ```julia
 using ImageGeoms
@@ -31,15 +31,24 @@ ig2d = ImageGeom((128,128), (1,1), (0,0))
 ig3d = ImageGeom( dims=(128,128,64), deltas=(1,1,2), offsets=(0,0,0) )
 ```
 
+### Documentation
+
 For more examples with graphics,
 see the
 [documentation](https://juliaimagerecon.github.io/ImageGeoms.jl/stable).
 
 
-Used in the following packages
+### [Dependents](https://juliahub.com/ui/Packages/ImageGeoms/itbva)
+
 * [Michigan Image Reconstruction Toolbox (MIRT)](https://github.com/JeffFessler/MIRT.jl)
 * [Sinograms.jl](https://github.com/todo/Sinograms.jl)
 * [SPECTrecon.jl](https://github.com/todo/SPECTrecon.jl)
+
+
+### Related packages
+
+* [AxisArrays](https://github.com/JuliaArrays/AxisArrays.jl)
+* [ImageAxes](https://github.com/JuliaImages/ImageAxes.jl)
 
 
 ### Compatibility
