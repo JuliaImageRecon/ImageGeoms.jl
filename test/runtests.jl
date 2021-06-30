@@ -13,4 +13,4 @@ end
     @test isempty(detect_ambiguities(ImageGeoms))
 end
 
-#include("unit.jl")
+include("downsample.jl")
