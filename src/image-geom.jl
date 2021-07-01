@@ -1,18 +1,18 @@
 #=
-image_geom.jl
+image-geom.jl
 Methods related to an image geometry for image reconstruction
 2017-10-02 Samuel Rohrer, University of Michigan
 2019-03-05 Jeff Fessler, Julia 1.1 + tests
 2019-06-23 Jeff Fessler, overhaul
 2020-07-21 Jeff Fessler, D-dimensional
+2021-06-30 Jeff Fessler, streamline
 =#
 
-export ImageGeom, image_geom, cbct
+export ImageGeom #, image_geom, cbct
 export circle, ellipse
 
-#using MIRT: downsample2, downsample3, ir_dump # todo cut
+#using ImageGeoms: downsample, upsample
 using FillArrays: Trues, Zeros, Ones
-using ImageTransformations: imresize
 
 
 """
@@ -70,8 +70,8 @@ function ImageGeom(
 end
 
 """
-    ig = ImageGeom( ; nx=128, dims=(nx,nx), deltas=(1,1), offsets=(0,0), mask=Trues(dims))
-Convenience constructor for 2D case.
+    ig = ImageGeom( ; dims=(nx,nx), deltas=(1,1), offsets=(0,0), mask=Trues )
+Convenience constructor using named keywords
 """
 function ImageGeom( ;
     dims::Dims{D} = (128,128),
@@ -83,72 +83,77 @@ function ImageGeom( ;
 end
 
 
-"""
-    help(ig::ImageGeom ; io)
-"""
 function help(ig::ImageGeom; io::IO = isinteractive() ? stdout : devnull)
 	print(io, "propertynames:\n")
-	print(io, propertynames(ig))
-
-	print(io,
-	"
-	Derived values for 2D (and 3D) images:
-
-	is3	is it 3d (nz > 0?)
-	fovs (|dx|*nx, |dy|*ny, ...)
-	np	sum(mask) = # pixels to be estimated
-
-	dim	(nx, ny, [nz])
-	x	1D x coordinates of each pixel
-	y	1D y coordiantes of each pixel
-	wx	(nx - 1/2) * dx + offset_x
-	wy	(ny - 1/2) * dy + offset_y
-	wz	(nz - 1/2) * dz + offset_z
-
-	xg	x coordinates of each pixel as a grid (2D or 3D)
-	yg	y coordinates of each pixel as a grid (2D or 3D)
-
-	u	1D frequency domain coordinates of each pixel (kx)
-	v	1D frequency domain coordinates of each pixel (ky)
-	w	1D frequency domain coordinates of each pixel (kz)
-
-	ug	2D or 3D grid of frequency domain coordinates
-	vg	2D or 3D grid of frequency domain coordinates
-	fg	NamedTuple of 2D or 3D frequency coordinates
-	ones	FillArray.Ones(dim)
-	zeros	FillArray.Zeros(dim)
-
-	mask_outline	binary image showing 2D outline of mask
-
-	Derived values for 3D images:
-
-	z	z coordinates of each pixel
-	zg	z coordinates of each pixel as a grid (3D only)
-	wg	3D grid of frequency domain coordinates
-
-	mask_or	[nx ny] logical 'or' of mask
-
-	Methods:
-
-	embed(x)	turn short column(s) into array(s)
-	maskit(x)	opposite of embed
-	shape(x)	reshape long column x to [nx ny [nz]] array
-	unitv(...)	j=j | i=(ix,iy) | c=(cx cy)
-				j: single index from 1 to length(z)
-				i: (ix,iy[,iz]) index from 1 to nx,ny
-				c: (cx,cy[,cz]) index from +/- n/2 center at floor(n/2)+1
-	circ(rx=,ry=,cx=,cy=)	circle of given radius and center (cylinder in 3D)
-	plot(jim)	plot the image geometry using the `MIRTjim.jim` function
-
-	Methods that return a new `ImageGeom:`
-
-	down(down::Int)		down-sample geometry by given factor
-	over(over::Int)		over-sample geometry by given factor
-	expand_nz(nz_pad)	expand image geometry in z by nz_pad on both ends
-	\n")
+	println(io, propertynames(ig))
 end
 
 
+"""
+	`ImageGeom` help
+
+## Properties
+
+Access by `ig.key`, mostly for 2D (and 3D) geometries:
+
+`is3`	is it 3d (`nz > 0`?) deprecated: use ndims(ig)
+`fovs` `(|dx|*nx, |dy|*ny, ...)`
+`np`	`sum(mask)` = # pixels to be estimated
+
+`dim`	`(nx, ny, [nz])`
+`x`	1D x coordinates of each pixel
+`y`	1D y coordiantes of each pixel
+`wx`	`(nx - 1/2) * dx + offset_x`
+`wy`	`(ny - 1/2) * dy + offset_y`
+`wz`	`(nz - 1/2) * dz + offset_z`
+
+`xg`	x coordinates of each pixel as a grid (2D or 3D)
+`yg`	y coordinates of each pixel as a grid (2D or 3D)
+
+`u`	1D frequency domain coordinates of each pixel (kx)
+`v`	1D frequency domain coordinates of each pixel (ky)
+`w`	1D frequency domain coordinates of each pixel (kz)
+
+`ug`	2D or 3D grid of frequency domain coordinates
+`vg`	2D or 3D grid of frequency domain coordinates
+`fg`	`NamedTuple` of 2D or 3D frequency coordinates
+`ones`	`FillArray.Ones(dim)`
+`zeros`	FillArray.Zeros(dim)
+
+`mask_outline`	binary image showing 2D outline of `mask`
+
+	Derived values for 3D images:
+
+`z`	z coordinates of each pixel
+`zg`	z coordinates of each pixel as a grid (3D only)
+`wg`	3D grid of frequency domain coordinates
+
+`mask_or`	`[nx ny]` logical 'or' of mask
+
+## Methods:
+
+* `embed(x)`	turn short column(s) into array(s)
+* `maskit(x)`	opposite of embed
+* `shape(x)`	reshape long column x to `[nx ny [nz]]` array
+* `unitv(...)`
+  * `j=j | i=(ix,iy) | c=(cx cy)`
+  * `j`: single index from 1 to `length(z)`
+  * `i`: (ix,iy[,iz]) index from 1 to nx,ny
+  * `c`: (cx,cy[,cz]) index from +/- n/2 center at floor(n/2)+1
+
+* `circ(rx=,ry=,cx=,cy=)` circle of given radius and center (cylinder in 3D)
+* `plot(jim)` plot the image geometry using the `MIRTjim.jim` function
+
+## Methods that return a new `ImageGeom:`
+
+* `down(down::Int)` down-sample geometry by given factor
+* `over(over::Int)` over-sample geometry by given factor
+* `expand_nz(nz_pad)` expand image geometry in z by `nz_pad` on both ends
+"""
+ImageGeom
+
+
+#=
 """
     MIRT_cbct_ig
 
@@ -170,6 +175,7 @@ struct MIRT_cbct_ig
 	iy_end::Ptr{Cint}	# [nthread] for mask2
 end
 
+
 """
     cbct(ig::ImageGeom{3,<:Real}; nthread::Int=1)
 Constructor for `MIRT_cbct_ig` (does not support units currently)
@@ -186,6 +192,7 @@ function cbct(ig::ImageGeom{3,S} ; nthread::Int=1) where {S <: NTuple{3,Real}}
 		pointer(Cint.(iy_start)), pointer(Cint.(iy_end)),
 	)
 end
+=#
 
 
 #=
@@ -302,34 +309,9 @@ end
 =#
 
 
-#=
-# carefully down-sample a mask
-function downsample(mask::BitArray{2}, down::NTuple{2,Int}, down_dim)
-	if down_dim .* down == size(mask)
-		return downsample2(ig.mask, down) .> 0
-	else
-		return imresize(ig.mask, down_dim...) .> 0
-	end
-end
-
-function downsample(mask::BitArray{3}, down::NTuple{3,Int}, down_dim)
-	down_dim .* down == size(mask) || throw("bug: bad mask size. need to address mask downsampling")
-	return downsample3(ig.mask, down) .> 0
-end
-=#
-
-# down-sample by integer divisor in all dimensions
-function downsample(mask::AbstractArray{D}, down::NTuple{D,Int}) where {D}
-    (size(mask) .÷ down) .* down == size(mask) || throw("bug mask size")
-    out = falses(size(mask) .÷ down)
-    throw("todo")
-#   throw("downsample $D-dim mask unsupported")
-end
-
-
 """
     ig_down = downsample(ig, down::Tuple{Int})
-down sample an image geometry by the factor `down`
+Down sample an image geometry by the factor `down`.
 cf `image_geom_downsample`
 """
 function downsample(ig::ImageGeom{D,S}, down::NTuple{D,Int}) where {D,S}
@@ -351,14 +333,18 @@ downsample(ig::ImageGeom{D}, down::Int) where {D} =
 
 
 """
-ig_new = expand_nz(ig::ImageGeom{3}, nz_pad::Int)
-pad both ends
+    ig_new = expand_nz(ig::ImageGeom{3}, nz_pad::Int)
+Pad both ends along z.
 """
 function expand_nz(ig::ImageGeom{3,S}, nz_pad::Int) where S
 	out_nz = ig.nz + 2*nz_pad
-	out_mask = cat(dims=3, repeat(ig.mask[:,:,1], 1, 1, nz_pad),
-		ig.mask, repeat(ig.mask[:,:,end], 1, 1, nz_pad),
-	)
+    if ig.mask isa Trues
+	    out_mask = Trues(ig.dims[1:2]..., out_nz)
+    else
+		out_mask = cat(dims=3, repeat(ig.mask[:,:,1], 1, 1, nz_pad),
+			ig.mask, repeat(ig.mask[:,:,end], 1, 1, nz_pad),
+		)
+	end
 	return ImageGeom{3,S}((ig.dims[1], ig.dims[2], out_nz),
 		ig.deltas, ig.offsets, out_mask,
 	)
@@ -366,14 +352,14 @@ end
 
 
 """
-ig_over = oversample(ig::ImageGeom, over::Int)
-over-sample an image geometry by the factor `over`
+    ig_over = oversample(ig::ImageGeom, over::Int)
+Over-sample an image geometry by the factor `over`.
 """
 function oversample(ig::ImageGeom{D}, over::Int) where {D}
-	if ig.mask == Trues(ig.dims) || all(ig.mask)
+	if ig.mask isa Trues || all(ig.mask)
 		mask_over = Trues(ig.dims .* over)
 	else
-		mask_over = imresize(ig.mask, ig.dims .* over) .> 0
+		mask_over = upsample(ig.mask, over)
 	end
 	return ImageGeom(ig.dims .* over, ig.deltas ./ over,
 		ig.offsets .* over, mask_over,
@@ -382,9 +368,9 @@ end
 
 
 """
-    ellipse(ig:ImageGeom{2} ; ...)
+    ellipse(ig::ImageGeom{2} ; ...)
 Ellipse that just inscribes the rectangle,
-but keeping a 1 pixel border due to ASPIRE regularization restriction.
+but keeping a 1 pixel border due to some regularizer limitations.
 """
 function ellipse(ig::ImageGeom{2} ;
 	dx::RealU = ig.deltas[1],
@@ -393,26 +379,23 @@ function ellipse(ig::ImageGeom{2} ;
 	ry::RealU = abs((ig.dims[2]/2-1)*dy),
 	cx::RealU = zero(dx),
     cy::RealU = zero(dy),
-    over::Int=2,
+#   over::Int=2,
 )
-	circ = ellipse_im(ig, [cx cy rx ry 0 1], oversample=over) .> 0
-	return circ
+
+    return @. ((ig.x - cx) / rx)^2 + ((ig.y' - cy) / ry)^2 .< 1
 end
 
 
 # default is a circle that just inscribes the square
 # but keeping a 1 pixel border due to ASPIRE regularization restriction
 function circle(ig::ImageGeom{2} ;
-	dx::RealU = ig.deltas[1],
-    dy::RealU = ig.deltas[2],
 	rx::RealU = abs((ig.dims[1]/2-1)*dx),
 	ry::RealU = abs((ig.dims[2]/2-1)*dy),
 	r::RealU = min(rx,ry),
-	cx::RealU = zero(dx),
-    cy::RealU = zero(dy),
-    over::Int=2,
+    kwargs...,
+#   over::Int=2,
 )
-	return ellipse_im(ig, [cx cy r r 0 1], oversample=over) .> 0
+	return ellipse(ig ; rx=r, ry=r, kwargs...)
 end
 
 function circle(ig::ImageGeom{3} ; kwargs...)
@@ -422,7 +405,7 @@ end
 
 
 """
-out = image_geom_add_unitv(z::AbstractArray ; j=?, i=?, c=?)
+    out = image_geom_add_unitv(z::AbstractArray ; j=?, i=?, c=?)
 
 Add a unit vector to an initial array `z` (typically of zeros).
 
@@ -472,23 +455,69 @@ plot(ig::ImageGeom{3}, how::Function ; kwargs...) =
 
 
 """
-    show(io::IO, ig::ImageGeom)
     show(io::IO, ::MIME"text/plain", ig::ImageGeom)
 """
-Base.show(io::IO, ig::ImageGeom) =
-	print(io, "ImageGeom: $(ig.dim)")
-
 function Base.show(io::IO, ::MIME"text/plain", ig::ImageGeom)
-	ir_dump(io, ig)
+    println(io, typeof(ig))
+    for f in (:dims, :deltas, :offsets)
+        p = getproperty(ig, f)
+        println(io, " ", f, "::", typeof(p), " ", p)
+    end
+    f = :mask
+    mask = getproperty(ig, f)
+#   print(io, " ", f, "::", typeof(ig).types[end], " ", mask)
+    print(io, " ", f, "::", " ", mask)
+    println(io, " {", sum(mask), " of ", length(mask), "}")
 end
 
-Base.zeros(ig:ImageGeom) = Zeros{Float32}(ig.dims...)
-Base.ones(ig:ImageGeom) = Ones{Float32}(ig.dims...)
+Base.zeros(ig::ImageGeom) = Zeros{Float32}(ig.dims...)
+Base.ones(ig::ImageGeom) = Ones{Float32}(ig.dims...)
+Base.ndims(ig::ImageGeom{D}) where D = D
 
 _zero(ig::ImageGeom{D,S}) where {D, S <: NTuple{D,Real}} = zero(Float32)
 _zero(ig::ImageGeom{D,S}) where {D, S <: NTuple{D,Any}} = zero(Int32) # alert!
 _zero(ig::ImageGeom{D,S}) where {D, S <: NTuple{D,T}} where {T <: Number} = zero(T)
 _zero(ig::ImageGeom{D,S}) where {D, S <: NTuple{D,T}} where {T <: Real} = zero(T)
+
+
+# spatial axes and grids ala ndgrid (todo: use lazy repeat?)
+xg(ig::ImageGeom{1}) = ig.x
+xg(ig::ImageGeom) = repeat(ig.x, 1, ig.dims[2:end]...)
+
+yg(ig::ImageGeom{1}) = Zeros{Float32}(ig.dims)
+yg(ig::ImageGeom{2}) = repeat(ig.y', ig.nx, 1)
+yg(ig::ImageGeom{3}) = repeat(ig.y', ig.nx, 1, ig.nz)
+yg(ig::ImageGeom) = throw(DimensionMismatch("yg for > 3D"))
+
+zg(ig::ImageGeom{1}) = Zeros{Float32}(ig.dims)
+zg(ig::ImageGeom{2}) = Zeros{Float32}(ig.dims)
+zg(ig::ImageGeom{3}) = repeat(reshape(ig.z, 1, 1, ig.nz), ig.nx, ig.ny, 1)
+zg(ig::ImageGeom) = throw(DimensionMismatch("yg for > 3D"))
+
+Base.axes(ig::ImageGeom{1}) = (ig.x,)
+Base.axes(ig::ImageGeom{2}) = (ig.x, ig.y)
+Base.axes(ig::ImageGeom{3}) = (ig.x, ig.y, ig.z)
+Base.axes(ig::ImageGeom) = throw(DimensionMismatch("axes for > 3D"))
+
+# spatial frequency grids
+ug(ig::ImageGeom{1}) = ig.u
+ug(ig::ImageGeom) = repeat(ig.u, 1, ig.dims[2:end]...)
+
+vg(ig::ImageGeom{1}) = Zeros{Float32}(ig.dims)
+vg(ig::ImageGeom{2}) = repeat(ig.v', ig.nx, 1)
+vg(ig::ImageGeom{3}) = repeat(ig.v', ig.nx, 1, ig.nz)
+vg(ig::ImageGeom) = throw(DimensionMismatch("vg for > 3D"))
+
+wg(ig::ImageGeom{1}) = Zeros{Float32}(ig.dims)
+wg(ig::ImageGeom{2}) = Zeros{Float32}(ig.dims)
+wg(ig::ImageGeom{3}) = repeat(reshape(ig.z, 1, 1, ig.nz), ig.nx, ig.ny, 1)
+wg(ig::ImageGeom) = throw(DimensionMismatch("wg for > 3D"))
+
+fg(ig::ImageGeom{1}) = (ig.ug,)
+fg(ig::ImageGeom{2}) = (ig.ug, ig.vg)
+fg(ig::ImageGeom{3}) = (ig.ug, ig.vg, ig.wg)
+fg(ig::ImageGeom) = throw(DimensionMismatch("fg for > 3D"))
+
 
 # Extended properties
 
@@ -499,7 +528,7 @@ image_geom_fun0 = Dict([
 	(:nx, ig -> ig.dims[1]),
 	(:ny, ig -> ig.ndim >= 2 ? ig.dims[2] : 0),
 	(:nz, ig -> ig.ndim >= 3 ? ig.dims[3] : 0),
-	(:is3, ig -> ig.nz > 0),
+#	(:is3, ig -> ig.nz > 0),
 	(:dim, ig -> ig.dims),
 	(:fovs, ig -> abs.(ig.deltas) .* ig.dims),
 
@@ -514,33 +543,29 @@ image_geom_fun0 = Dict([
 	(:offset_y, ig -> ig.ndim >= 2 ? ig.offsets[2] : Float32(0)),
 	(:offset_z, ig -> ig.ndim >= 3 ? ig.offsets[3] : Float32(0)),
 
-	(:x, ig -> ((0:ig.nx-1) .- ig.wx) * ig.dx),
-	(:y, ig -> ((0:ig.ny-1) .- ig.wy) * ig.dy),
-	(:z, ig -> ((0:ig.nz-1) .- ig.wz) * ig.dz),
-
 	(:wx, ig -> (ig.nx - 1)/2 + ig.offset_x),
 	(:wy, ig -> (ig.ny - 1)/2 + ig.offset_y),
 	(:wz, ig -> (ig.nz - 1)/2 + ig.offset_z),
 
-	(:xg, ig -> ig.is3 ? repeat(ig.x, 1, ig.ny, ig.nz) :
-						repeat(ig.x, 1, ig.ny)),
-	(:yg, ig -> ig.is3 ? repeat(ig.y', ig.nx, 1, ig.nz) :
-						repeat(ig.y', ig.nx, 1)),
-	(:zg, ig -> ig.is3 ? repeat(reshape(ig.z, 1, 1, ig.nz), ig.nx, ig.ny, 1) :
-						zeros(Float32, ig.nx, ig.ny)),
+	# spatial axes and grids
+	(:x, ig -> ((0:ig.nx-1) .- ig.wx) * ig.dx),
+	(:y, ig -> ((0:ig.ny-1) .- ig.wy) * ig.dy),
+	(:z, ig -> ((0:ig.nz-1) .- ig.wz) * ig.dz),
+	(:axes, ig -> axes(ig)),
 
-	# DFT frequency sample grid
+	(:xg, ig -> xg(ig)),
+	(:yg, ig -> yg(ig)),
+	(:zg, ig -> zg(ig)),
+
+	# DFT frequency axes and grids
 	(:u, ig -> (-ig.nx/2:(ig.nx/2-1)) / (ig.nx*ig.dx)),
 	(:v, ig -> (-ig.ny/2:(ig.ny/2-1)) / (ig.ny*ig.dy)),
 	(:w, ig -> (-ig.nz/2:(ig.nz/2-1)) / (ig.nz*ig.dz)),
 
-	(:ug, ig -> ig.is3 ? repeat(ig.u, 1, ig.ny, ig.nz) :
-						repeat(ig.u, 1, ig.ny)),
-	(:vg, ig -> ig.is3 ? repeat(ig.v', ig.nx, 1, ig.nz) :
-						repeat(ig.v', ig.nx, 1)),
-	(:wg, ig -> ig.is3 ? repeat(reshape(ig.w, 1, 1, ig.nz), ig.nx, ig.ny, 1) :
-						zeros(Float32, ig.nx, ig.ny)),
-	(:fg, ig -> ig.is3 ? (ig.ug, ig.vg, ig.wg) : (ig.ug, ig.vg)),
+	(:ug, ig -> ug(ig)),
+	(:vg, ig -> vg(ig)),
+	(:wg, ig -> ug(ig)),
+	(:fg, ig -> fg(ig)),
 
 	(:np, ig -> sum(ig.mask)),
 	(:mask_or, ig -> mask_or(ig.mask)),
@@ -555,20 +580,20 @@ image_geom_fun0 = Dict([
 	(:unitv, ig -> (( ; kwargs...) -> image_geom_add_unitv(ig.zeros ; kwargs...))),
 	(:circ, ig -> (( ; kwargs...) -> circle(ig ; kwargs...))),
 
-	# functions that return new geometry:
+	# functions that return new geometry
 
 	(:down, ig -> (down::Int -> downsample(ig, down))),
 	(:over, ig -> (over::Int -> oversample(ig, over))),
 	(:expand_nz, ig -> (nz_pad::Int -> expand_nz(ig, nz_pad))),
 
-	])
+	]
+)
 
 
 # Tricky overloading here!
 
 Base.getproperty(ig::ImageGeom, s::Symbol) =
-		haskey(image_geom_fun0, s) ? image_geom_fun0[s](ig) :
-		getfield(ig, s)
+		haskey(image_geom_fun0, s) ? image_geom_fun0[s](ig) : getfield(ig, s)
 
 Base.propertynames(ig::ImageGeom) =
 	(fieldnames(typeof(ig))..., keys(image_geom_fun0)...)
