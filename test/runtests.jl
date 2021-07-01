@@ -3,15 +3,13 @@
 using Test: @test, @testset, detect_ambiguities
 using ImageGeoms
 
-macro isplot(ex) # @isplot macro to streamline tests
-    :(@test $(esc(ex)) isa Plots.Plot)
-end
-
 include("imresize.jl")
 include("ndgrid.jl")
+include("makemask.jl")
+include("mask.jl")
 
 @testset "ImageGeoms" begin
-    include("image-geom.jl")
+    include("core.jl")
 
     @test isempty(detect_ambiguities(ImageGeoms))
 end
