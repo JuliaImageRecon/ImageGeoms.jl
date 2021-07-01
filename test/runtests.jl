@@ -8,6 +8,7 @@ macro isplot(ex) # @isplot macro to streamline tests
 end
 
 include("imresize.jl")
+include("ndgrid.jl")
 
 @testset "ImageGeoms" begin
     include("image-geom.jl")
