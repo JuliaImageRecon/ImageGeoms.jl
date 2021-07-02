@@ -124,10 +124,10 @@ end
 
 
 """
-    maskit(x::AbstractArray{<:Number})
+    maskit(x::AbstractArray{<:Number}, mask)
 opposite of embed
 """
-function maskit(x::AbstractArray{<:Number}, mask::AbstractArray{Bool})
+function maskit(x::AbstractArray, mask::AbstractArray{Bool})
     dim = size(x)
     ((ndims(x) >= ndims(mask)) && (size(x)[1:ndims(mask)] == size(mask))) ||
         throw(DimensionMismatch("size x $(size(x)) vs mask $(size(mask))"))

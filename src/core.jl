@@ -5,7 +5,7 @@ ImageGeom type, constructors, and core methods
 
 export ImageGeom
 export downsample, oversample, expand_nz
-export axis, grids, axisf, axesf, gridf, plot
+export axis, grids, axisf, axesf, gridf
 
 #using ImageGeoms: downsample, upsample, ndgrid_lazy
 using FillArrays: Trues, Falses, Zeros, Ones
@@ -73,7 +73,7 @@ function ImageGeom(
 end
 
 """
-    ig = ImageGeom( ; dims=(nx,nx), deltas=(1,1), offsets=(0,0), mask=Trues )
+    ig = ImageGeom( ; dims=(nx,ny), deltas=(1,1), offsets=(0,0), mask=Trues )
 Constructor using named keywords.
 """
 function ImageGeom( ;
@@ -115,14 +115,17 @@ function Base.show(io::IO, ::MIME"text/plain", ig::ImageGeom)
     println(io, " {", sum(mask), " of ", length(mask), "}")
 end
 
-
-Base.zeros(ig::ImageGeom) = Zeros{Float32}(ig.dims...)
-Base.ones(ig::ImageGeom) = Ones{Float32}(ig.dims...)
-Base.trues(ig::ImageGeom) = Trues(ig.dims...)
-Base.falses(ig::ImageGeom) = Falses(ig.dims...)
 Base.ndims(ig::ImageGeom{D}) where D = D
 Base.size(ig::ImageGeom) = ig.dims
 Base.size(ig::ImageGeom, d::Int) = ig.dims[d]
+
+Base.zeros(T::DataType, ig::ImageGeom) = Zeros{T}(ig.dims...)
+Base.zeros(ig::ImageGeom) = zeros(Float32, ig)
+Base.ones(T::DataType, ig::ImageGeom) = Ones{T}(ig.dims...)
+Base.ones(ig::ImageGeom) = ones(Float32, ig)
+
+Base.trues(ig::ImageGeom) = Trues(ig.dims...)
+Base.falses(ig::ImageGeom) = Falses(ig.dims...)
 
 Base.zero(ig::ImageGeom{D,S}) where {D, S <: NTuple{D,Real}} = zero(Float32)
 Base.zero(ig::ImageGeom{D,S}) where {D, S <: NTuple{D,Any}} = zero(Int32) # alert!
@@ -202,7 +205,7 @@ The `how` argument should be `MIRTjim.jim` to be useful.
 plot(ig::ImageGeom{2}, how::Function ; kwargs...) =
     how(axes(ig)..., ig.mask, "(nx,ny)=$(ig.dims)" ; kwargs...)
 plot(ig::ImageGeom{3}, how::Function ; kwargs...) =
-    how(axes(ig)..., mask_or(ig.mask),
+    how(axis(ig,1), axis(ig,2), mask_or(ig.mask),
         "(dx,dy,dz)=$(ig.deltas)" ; kwargs...)
 
 

@@ -74,8 +74,8 @@ end
     @test size(i3z,3) == size(i3,3) + 8
 
     how = (args...; kw...) -> args[1] # trick to avoid Plots
-    @test plot(ig, how) == axes(ig)[1]
-    @test plot(i3, how) == axes(i3)[1]
+    @test ImageGeoms.plot(ig, how) == axes(ig)[1]
+    @test ImageGeoms.plot(i3, how) == axes(i3)[1]
 
     @test (@inferred axes(i3)) isa Tuple
     @test axis(i3, 2) isa StepRangeLen
