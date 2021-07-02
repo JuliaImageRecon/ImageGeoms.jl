@@ -5,6 +5,9 @@ using Literate
 # based on:
 # https://github.com/jw3126/UnitfulRecipes.jl/blob/master/docs/make.jl
 
+# https://juliadocs.github.io/Documenter.jl/stable/man/syntax/#@example-block
+ENV["GKSwstype"] = "100"
+
 # generate tutorials and how-to guides using Literate
 lit = joinpath(@__DIR__, "lit")
 src = joinpath(@__DIR__, "src")

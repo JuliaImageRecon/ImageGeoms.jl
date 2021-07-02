@@ -1,5 +1,5 @@
 #---------------------------------------------------------
-# # [2-mask](@id 2-mask)
+# # [Support mask](@id 2-mask)
 #---------------------------------------------------------
 
 # This page explains the `mask` aspects of the Julia package
@@ -38,11 +38,11 @@ isinteractive() ? jim(:prompt, true) : prompt(:draw);
 # in most other languages.
 
 # Often we use a "circle inscribed in the square" as a generic support mask,
-# and one of the built-in properties can generate such a circular mask:
+# and one of the built-in constructors can generate such a circular mask:
 
 ig = ImageGeom(MaskCircle() ; dims=(40,32), deltas=(1mm,1mm))
 
-# The `mask:` summary above shows that 716 of 1280=40*32 mask pixels are nonzero
+# That last line shows that 716 of 1280=40*32 mask pixels are nonzero.
 
 ImageGeoms.plot(ig, jim)
 
@@ -60,7 +60,7 @@ ImageGeoms.plot(ig, jim)
 
 # ### Mask operations
 
-# Often we only need the pixel values within a mask:
+# Often we need to extract the pixel values within a mask:
 
 ig = ImageGeom(MaskAllButEdge() ; dims=(6,4))
 x = 1:size(ig,1)
@@ -71,7 +71,7 @@ ig.mask
 
 core = ramp[ig.mask]
 
-# Or equivalently
+# Or equivalently:
 maskit(ramp, ig.mask)
 
 # Conversely, we can embed that list of pixels back into an array:
@@ -82,5 +82,6 @@ array = embed(core, ig.mask)
 core = Array{Float32}(undef, sum(ig.mask))
 getindex!(core, ramp, ig.mask)
 
+#
 array = collect(zeros(Float16, ig))
 embed!(array, core, ig.mask)

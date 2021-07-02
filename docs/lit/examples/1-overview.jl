@@ -1,5 +1,5 @@
 #---------------------------------------------------------
-# # [ImageGeoms](@id ImageGeoms)
+# # [ImageGeoms overview](@id 1-overview)
 #---------------------------------------------------------
 
 # This page explains the Julia package
@@ -11,7 +11,7 @@
 
 using ImageGeoms
 using MIRTjim: jim, prompt
-using Plots: scatter; default(markerstrokecolor=:auto)
+using Plots: scatter, plot!, default; default(markerstrokecolor=:auto)
 
 # The following line is helpful when running this example.jl file as a script;
 # this way it will prompt user to hit a key after each figure is displayed.
@@ -77,8 +77,6 @@ axis(ig, 2)
 # is a subtype of `AbstractRange` of the form
 # `( (0:n-1) .- ((n - 1)/2 + offset) ) * Δ`
 
-# there are too many to remember, so there is built-in help:
-#ig.help # todo
 
 # These axes are useful for plotting:
 ig = ImageGeom( dims=(12,10), deltas=(1mm,1mm), offsets=(0.5,0.5) )
@@ -122,7 +120,6 @@ square = (x,y,Δ) -> plot!(p, label="", color=:black,
     x .+ Δ[1] * ([0,1,1,0,0] .- 0.5),
     y .+ Δ[2] * ([0,0,1,1,0] .- 0.5),
 )
-showgrid(ig)
 square2 = (x,y) -> square(x, y, ig.deltas)
 square2.(grids(ig)...)
 plot!(p)
