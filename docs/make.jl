@@ -44,6 +44,7 @@ makedocs(;
     modules = [ImageGeoms],
     authors = "Jeff Fessler and contributors",
     repo = "https://github.com/juliaimagerecon/ImageGeoms.jl/blob/{commit}{path}#{line}",
+    canonical = "https://JuliaImageRecon.github.io/ImageGeoms.jl/stable",
     sitename = "ImageGeoms.jl",
     format,
     pages = [
@@ -58,6 +59,7 @@ if isci
         devbranch = "main",
         devurl = "dev",
         versions = ["stable" => "v^", "dev" => "dev"]
-    #   push_preview = true,
+        push_preview = true,
+        # see https://JuliaImageRecon.github.io/ImageGeoms.jl/previews/PR##
     )
 end
