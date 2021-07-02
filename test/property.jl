@@ -1,11 +1,15 @@
-# tests for old interface and properties
+# tests for properties
 
+using ImageGeoms
+using Test: @test, @testset, @test_throws, @inferred
+
+# test 2D properties
 function image_geom_test2(ig::ImageGeom)
-    # test 2D functions provided by the constructor
-    ig.dim
     ig.dims
     ig.deltas
     ig.offsets
+
+    ig.dim
     ig.x
     ig.y
     ig.wx
@@ -14,17 +18,20 @@ function image_geom_test2(ig::ImageGeom)
     ig.yg
     ig.fovs
     ig.np
-    ig.mask_outline
+#   ig.mask_outline
     ig.ones
     ig.zeros
     ig.u
     ig.v
     ig.ug
     ig.vg
-    ig.fg
+#   ig.fg
+
     @test ig.shape(vec(ig.ones)) == ig.ones
-    # todo: collect due to https://github.com/JuliaArrays/FillArrays.jl/pull/149
-    @test ig.embed(collect(ig.ones)[ig.mask]) == ig.mask
+    # todo: collect due to https://github.com/JuliaArrays/FillArrays.jl/pull/148
+#   @test ig.embed(collect(ig.ones)[ig.mask]) == ig.mask
+    # todo: vec due to https://github.com/JuliaArrays/FillArrays.jl/pull/150
+    @test ig.embed(ig.ones[vec(ig.mask)]) == ig.mask
     @test ig.maskit(ig.ones) == ones(ig.np)
 #   @inferred # todo
     ig.unitv()
@@ -38,8 +45,8 @@ function image_geom_test2(ig::ImageGeom)
     @inferred ig.unitv()
 =#
     ig.circ()
-    ig.plot(jim)
-#   isinteractive() && gui()
+    how = (args...; kw...) -> args[1] # trick to avoid Plots
+    ig.plot(how)
     ig.unitv()
 #= todo-i:
     @inferred ig.down(2)
@@ -47,20 +54,21 @@ function image_geom_test2(ig::ImageGeom)
 =#
     @test ig.down(2) isa ImageGeom
     @test ig.over(2) isa ImageGeom
-    image_geom_ellipse(8, 10, 1, 2)
+#   image_geom_ellipse(8, 10, 1, 2)
     true
 end
 
 
 function image_geom_test2()
     #@inferred
-    image_geom(nx=16, dx=2, offsets=:dsp, mask=:all_but_edge_xy)
-    @test_throws String image_geom(nx=16, dx=1, offsets=:bad)
-    @test_throws String image_geom(nx=16, dx=1, mask=:bad) # mask type
-    @test_throws String image_geom(nx=16, dx=1, mask=trues(2,2)) # mask size
-    ig = image_geom(nx=16, dx=2)
+#   image_geom(nx=16, dx=2, offsets=:dsp, mask=:all_but_edge_xy)
+#   @test_throws String image_geom(nx=16, dx=1, offsets=:bad)
+#   @test_throws String image_geom(nx=16, dx=1, mask=:bad) # mask type
+#   @test_throws String image_geom(nx=16, dx=1, mask=trues(2,2)) # mask size
+    ig = ImageGeom(MaskAll(); dims=(9,8), deltas=(2,2))
+    image_geom_test2(ig) # todo: fails at embed
+    ig = ImageGeom(MaskCircle(); dims=(9,8), deltas=(2,2))
     image_geom_test2(ig)
-    ig = image_geom(nx=16, dx=2, mask=:circ)
     ig.over(2)
     ig.down(3) # test both even and non-even factors
     ig.help
@@ -68,22 +76,20 @@ function image_geom_test2()
 end
 
 
-function image_geom_test3(ig::ImageGeom)
+function image_geom_test3(ig::ImageGeom{3})
     @test image_geom_test2(ig)
     ig.wz
     ig.zg
     ig.mask_or
     @inferred ig.expand_nz(2)
-    @inferred cbct(ig)
-    @test_throws String image_geom(nx=1, dx=1, nz=2, offset_z=-1, offsets=:dsp)
+#   @inferred cbct(ig)
+#   @test_throws String image_geom(nx=1, dx=1, nz=2, offset_z=-1, offsets=:dsp)
     true
 end
 
 
 function image_geom_test3()
-    #@inferred
-    image_geom(nx=16, nz=4, dx=2, zfov=1)
-    ig = image_geom(nx=16, nz=4, dx=2, dz=3)
+    ig = @inferred ImageGeom( dims = (9,8,4) )
     image_geom_test3(ig)
     true
 end

@@ -16,4 +16,7 @@ include("ndgrid.jl")
 include("makemask.jl")
 include("mask.jl")
 
+# excluded because the way it modifies getproperty causes type instability
+#include("property.jl")
+
 end # module
