@@ -36,7 +36,7 @@ isci = get(ENV, "CI", nothing) == "true"
 
 format = Documenter.HTML(;
     prettyurls = isci,
-#   canonical = "https://juliaimagerecon.github.io/MIRTjim.jl/stable",
+    canonical = "https://JuliaImageRecon.github.io/ImageGeoms.jl/stable/",
 #   assets = String[],
 )
 
@@ -44,7 +44,6 @@ makedocs(;
     modules = [ImageGeoms],
     authors = "Jeff Fessler and contributors",
     repo = "https://github.com/juliaimagerecon/ImageGeoms.jl/blob/{commit}{path}#{line}",
-    canonical = "https://JuliaImageRecon.github.io/ImageGeoms.jl/stable",
     sitename = "ImageGeoms.jl",
     format,
     pages = [
