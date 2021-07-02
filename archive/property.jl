@@ -2,7 +2,8 @@
 property.jl
 =#
 
-#using ImageGeoms: downsample, upsample
+using FillArrays: Zeros
+#using ImageGeoms #: [many]
 
 
 """
@@ -12,45 +13,45 @@ property.jl
 
 Access by `ig.key`, mostly for 2D (and 3D) geometries:
 
-`is3`    is it 3d (`nz > 0`?) deprecated: use ndims(ig)
 `fovs` `(|dx|*nx, |dy|*ny, ...)`
-`np`    `sum(mask)` = # pixels to be estimated
+`np`   `sum(mask)` = # pixels to be estimated
 
-`dim`    `(nx, ny, [nz])`
-`x`    1D x coordinates of each pixel
-`y`    1D y coordiantes of each pixel
-`wx`    `(nx - 1/2) * dx + offset_x`
-`wy`    `(ny - 1/2) * dy + offset_y`
-`wz`    `(nz - 1/2) * dz + offset_z`
+`dim`  `(nx, ny, [nz])`
 
-`xg`    x coordinates of each pixel as a grid (2D or 3D)
-`yg`    y coordinates of each pixel as a grid (2D or 3D)
+`wx`   `(nx - 1/2) * dx + offset_x`
+`wy`   `(ny - 1/2) * dy + offset_y`
+`wz`   `(nz - 1/2) * dz + offset_z`
 
-`u`    1D frequency domain coordinates of each pixel (kx)
-`v`    1D frequency domain coordinates of each pixel (ky)
-`w`    1D frequency domain coordinates of each pixel (kz)
+`x` 1D x coordinates of each pixel
+`y` 1D y coordinates of each pixel
+`z` 1D z coordinates of each pixel
 
-`ug`    2D or 3D grid of frequency domain coordinates
-`vg`    2D or 3D grid of frequency domain coordinates
-`fg`    `NamedTuple` of 2D or 3D frequency coordinates
-`ones`    `FillArray.Ones(dim)`
-`zeros`    FillArray.Zeros(dim)
+`xg` x coordinates of each pixel as a grid (2D or 3D)
+`yg` y coordinates of each pixel as a grid (2D or 3D)
+`zg` z coordinates of each pixel as a grid (2D or 3D)
 
-`mask_outline`    binary image showing 2D outline of `mask`
+`u` 1D frequency domain coordinates of each pixel (kx)
+`v` 1D frequency domain coordinates of each pixel (ky)
+`w` 1D frequency domain coordinates of each pixel (kz)
 
-    Derived values for 3D images:
+`ug` ≥1D grid of kx frequency domain coordinates
+`vg` ≥2D grid of ky frequency domain coordinates
+`wg` ≥3D grid of kz frequency domain coordinates
 
-`z`    z coordinates of each pixel
-`zg`    z coordinates of each pixel as a grid (3D only)
-`wg`    3D grid of frequency domain coordinates
+`ones`  `FillArray.Ones(dim)`
+`zeros` `FillArray.Zeros(dim)`
 
-`mask_or`    `[nx ny]` logical 'or' of mask
+`mask_outline` binary image showing 2D outline of `mask` (todo)
+
+Derived values for 3D images:
+
+`mask_or` `[nx ny]` logical 'or' of `mask`
 
 ## Methods:
 
-* `embed(x)`    turn short column(s) into array(s)
-* `maskit(x)`    opposite of embed
-* `shape(x)`    reshape long column x to `[nx ny [nz]]` array
+* `embed(x)`   turn short column(s) into array(s)
+* `maskit(x)`  opposite of embed
+* `shape(x)`   reshape long column x to `[nx ny [nz]]` array
 * `unitv(...)`
   * `j=j | i=(ix,iy) | c=(cx cy)`
   * `j`: single index from 1 to `length(z)`
@@ -66,7 +67,7 @@ Access by `ig.key`, mostly for 2D (and 3D) geometries:
 * `over(over::Int)` over-sample geometry by given factor
 * `expand_nz(nz_pad)` expand image geometry in z by `nz_pad` on both ends
 """
-ImageGeom
+ImageGeomHelp
 
 
 """
@@ -131,26 +132,17 @@ ug(ig::ImageGeom) = gridf(ig)[1]
 
 vg(ig::ImageGeom{1}) = Zeros{Float32}(ig.dims)
 vg(ig::ImageGeom{2}) = repeat(ig.v', ig.nx, 1)
-#vg(ig::ImageGeom{3}) = repeat(ig.v', ig.nx, 1, ig.nz)
-#vg(ig::ImageGeom) = throw(DimensionMismatch("vg for > 3D"))
 vg(ig::ImageGeom) = gridf(ig)[2]
 
 wg(ig::ImageGeom{1}) = Zeros{Float32}(ig.dims)
 wg(ig::ImageGeom{2}) = Zeros{Float32}(ig.dims)
-#wg(ig::ImageGeom{3}) = repeat(reshape(ig.z, 1, 1, ig.nz), ig.nx, ig.ny, 1)
-#wg(ig::ImageGeom) = throw(DimensionMismatch("wg for > 3D"))
 wg(ig::ImageGeom) = gridf(ig)[3]
-
-#fg(ig::ImageGeom{1}) = (ig.ug,)
-#fg(ig::ImageGeom{2}) = (ig.ug, ig.vg)
-#fg(ig::ImageGeom{3}) = (ig.ug, ig.vg, ig.wg)
-#fg(ig::ImageGeom) = throw(DimensionMismatch("fg for > 3D"))
-
 
 
 function help(ig::ImageGeom; io::IO = isinteractive() ? stdout : devnull)
     print(io, "propertynames:\n")
     println(io, propertynames(ig))
+	@doc ImageGeomHelp
 end
 
 # Extended properties
@@ -162,7 +154,6 @@ image_geom_fun0 = Dict([
     (:nx, ig -> ig.dims[1]),
     (:ny, ig -> ig.ndim >= 2 ? ig.dims[2] : 0),
     (:nz, ig -> ig.ndim >= 3 ? ig.dims[3] : 0),
-#    (:is3, ig -> ig.nz > 0),
     (:dim, ig -> ig.dims),
     (:fovs, ig -> abs.(ig.deltas) .* ig.dims),
 
@@ -170,8 +161,8 @@ image_geom_fun0 = Dict([
     (:ones, ig -> ones(ig)),
 
     (:dx, ig -> ig.deltas[1]),
-    (:dy, ig -> ig.ndim >= 2 ? ig.deltas[2] : _zero(ig)),
-    (:dz, ig -> ig.ndim >= 3 ? ig.deltas[3] : _zero(ig)),
+    (:dy, ig -> ig.ndim >= 2 ? ig.deltas[2] : zero(ig)),
+    (:dz, ig -> ig.ndim >= 3 ? ig.deltas[3] : zero(ig)),
 
     (:offset_x, ig -> ig.offsets[1]),
     (:offset_y, ig -> ig.ndim >= 2 ? ig.offsets[2] : Float32(0)),
@@ -185,32 +176,30 @@ image_geom_fun0 = Dict([
     (:x, ig -> ((0:ig.nx-1) .- ig.wx) * ig.dx),
     (:y, ig -> ((0:ig.ny-1) .- ig.wy) * ig.dy),
     (:z, ig -> ((0:ig.nz-1) .- ig.wz) * ig.dz),
-    (:axes, ig -> axes(ig)),
 
     (:xg, ig -> xg(ig)),
     (:yg, ig -> yg(ig)),
     (:zg, ig -> zg(ig)),
 
     # DFT frequency axes and grids
-    (:u, ig -> _axisf(ig.nx, ig.dx)),
-    (:v, ig -> _axisf(ig.ny, ig.dy)),
-    (:w, ig -> _axisf(ig.nz, ig.dz)),
+    (:u, ig -> axisf(ig, 1)),
+    (:v, ig -> axisf(ig, 2)),
+    (:w, ig -> axisf(ig, 3)),
 
     (:ug, ig -> ug(ig)),
     (:vg, ig -> vg(ig)),
-    (:wg, ig -> ug(ig)),
-    (:fg, ig -> axesf(ig)),
+    (:wg, ig -> wg(ig)),
 
     (:np, ig -> sum(ig.mask)),
     (:mask_or, ig -> mask_or(ig.mask)),
-    (:mask_outline, ig -> mask_outline(ig.mask)),
+#   (:mask_outline, ig -> mask_outline(ig.mask)),
 
     # simple functions
 
     (:plot, ig -> ((how::Function ; kwargs...) -> plot(ig, how ; kwargs...))),
     (:embed, ig -> (x::AbstractArray -> embed(x, ig.mask))),
     (:maskit, ig -> (x::AbstractArray -> maskit(x, ig.mask))),
-    (:shape, ig -> (x::AbstractArray -> reshape(x, ig.dim))),
+    (:shape, ig -> (x::AbstractArray -> reshape(x, ig.dims))),
     (:unitv, ig -> (( ; kwargs...) -> image_geom_add_unitv(ig.zeros ; kwargs...))),
     (:circ, ig -> (( ; kwargs...) -> circle(ig ; kwargs...))),
 
