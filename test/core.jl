@@ -70,6 +70,10 @@ end
     @test i3_over.offsets == i3.offsets
     @test all(i3_over.mask[i3.mask])
 
+    i3a = @inferred ImageGeom( dims=(2,3,4) )
+    i3z = @inferred expand_nz(i3a, 1)
+    @test size(i3z,3) == size(i3a,3) + 2
+
     i3z = @inferred expand_nz(i3, 4)
     @test size(i3z,3) == size(i3,3) + 8
 

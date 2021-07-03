@@ -13,7 +13,6 @@ using ImageGeoms
 using MIRTjim: jim, prompt
 using UnitfulRecipes
 using Unitful: mm
-#using Plots; default(markerstrokecolor=:auto)
 
 # The following line is helpful when running this example.jl file as a script;
 # this way it will prompt user to hit a key after each figure is displayed.

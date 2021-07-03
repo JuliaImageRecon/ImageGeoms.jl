@@ -36,7 +36,7 @@ isci = get(ENV, "CI", nothing) == "true"
 
 format = Documenter.HTML(;
     prettyurls = isci,
-#   canonical = "https://juliaimagerecon.github.io/MIRTjim.jl/stable",
+    canonical = "https://JuliaImageRecon.github.io/ImageGeoms.jl/stable/",
 #   assets = String[],
 )
 
@@ -48,6 +48,7 @@ makedocs(;
     format,
     pages = [
         "Home" => "index.md",
+        "Methods" => "methods.md",
         "Examples" => pages("examples")
     ],
 )
@@ -57,7 +58,10 @@ if isci
         repo = "github.com/juliaimagerecon/ImageGeoms.jl.git",
         devbranch = "main",
         devurl = "dev",
-        versions = ["stable" => "v^", "dev" => "dev"]
-    #   push_preview = true,
+        versions = ["stable" => "v^", "dev" => "dev"],
+        push_preview = true,
+        # see https://JuliaImageRecon.github.io/ImageGeoms.jl/previews/PR##
     )
+else
+    @warn "may need to: rm -r src/examples"
 end
