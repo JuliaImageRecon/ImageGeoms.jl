@@ -28,10 +28,7 @@ function image_geom_test2(ig::ImageGeom)
 #   ig.fg
 
     @test ig.shape(vec(ig.ones)) == ig.ones
-    # todo: collect due to https://github.com/JuliaArrays/FillArrays.jl/pull/148
-#   @test ig.embed(collect(ig.ones)[ig.mask]) == ig.mask
-    # todo: vec due to https://github.com/JuliaArrays/FillArrays.jl/pull/150
-    @test ig.embed(ig.ones[vec(ig.mask)]) == ig.mask
+    @test ig.embed(ig.ones[ig.mask]) == ig.mask
     @test ig.maskit(ig.ones) == ones(ig.np)
 #   @inferred # todo
     ig.unitv()
