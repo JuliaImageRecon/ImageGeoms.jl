@@ -30,6 +30,7 @@ jobs:
       - name: Install dependencies
         run: |
           julia --project=docs/ -e '
+          ENV["JULIA_PKG_SERVER"] = ""
           using Pkg
           Pkg.develop(PackageSpec(path=pwd()))
           Pkg.instantiate()'
