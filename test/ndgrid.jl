@@ -18,7 +18,7 @@ using Test: @test, @testset, @test_throws, @inferred
     @inferred ndgrid(x, y) # compiler figures it out,
     @inferred ndgrid(x, z) # surprisingly
 
-    @test_throws ArgumentError ndgrid_repeat(x, (4,2,3), 0)
+    @test_throws BoundsError ndgrid_repeat(x, (4,2,3), 0)
     @test_throws DimensionMismatch ndgrid_repeat(x, (4,2,3), 2)
 
     @inferred ndgrid_repeat(x, (4,2,3), 1)
@@ -52,6 +52,8 @@ end
     @test size(xn) == size(xl)
     @test ndims(xn) == ndims(xl)
     @test xl isa AbstractArray
+
+    @test sizeof(xl) < 100 # small!
 end
 
 #=
@@ -62,15 +64,18 @@ end
 #=
 # uncomment this block for timing comparisons
 
-f = x -> x^2
     x = 1:2^8
     y = 1:2^9
     z = 1:2^4
     (xn, _, _) = ndgrid(x, y, z)
     (xl, _, _) = ndgrid_lazy(x, y, z)
-@assert sum(f, xl) ≈ sum(f, xn)
+    f = x -> sum(a -> a^2, x)
+    g = x -> @inbounds sum(a -> a^2, x)
+    @assert f(xl) ≈ f(xn) ≈ g(xl)
 
 using BenchmarkTools
-@btime sum($f, $xn) # 0.8 ms
-@btime sum($f, $xl) # 4.3 ms (much slower, but less memory...)
+@btime f($xn) # 0.9 ms
+@btime f($xl) # 4.3 ms (much slower, but less memory...)
+@btime g($xn) # 0.9 ms
+@btime g($xl) # 4.3 ms (so inbounds did not help)
 =#
