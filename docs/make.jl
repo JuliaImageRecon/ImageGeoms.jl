@@ -36,6 +36,7 @@ isci = get(ENV, "CI", nothing) == "true"
 
 format = Documenter.HTML(;
     prettyurls = isci,
+    edit_link = "main",
     canonical = "https://JuliaImageRecon.github.io/ImageGeoms.jl/stable/",
 #   assets = String[],
 )
@@ -43,7 +44,7 @@ format = Documenter.HTML(;
 makedocs(;
     modules = [ImageGeoms],
     authors = "Jeff Fessler and contributors",
-    repo = "https://github.com/juliaimagerecon/ImageGeoms.jl/blob/{commit}{path}#{line}",
+#   repo = "https://github.com/juliaimagerecon/ImageGeoms.jl/blob/{commit}{path}#{line}",
     sitename = "ImageGeoms.jl",
     format,
     pages = [
@@ -55,10 +56,11 @@ makedocs(;
 
 if isci
     deploydocs(;
-        repo = "github.com/juliaimagerecon/ImageGeoms.jl.git",
+        repo = "github.com/JuliaImageRecon/ImageGeoms.jl",
         devbranch = "main",
         devurl = "dev",
         versions = ["stable" => "v^", "dev" => "dev"],
+        forcepush = true,
         push_preview = true,
         # see https://JuliaImageRecon.github.io/ImageGeoms.jl/previews/PR##
     )
