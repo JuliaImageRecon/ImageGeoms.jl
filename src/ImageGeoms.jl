@@ -12,7 +12,6 @@ export Mask, MaskAll, MaskCircle, MaskEllipse, MaskAllButEdge
 
 include("core.jl")
 include("imresize.jl")
-include("ndgrid.jl")
 include("makemask.jl")
 include("mask.jl")
 
