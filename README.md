@@ -10,8 +10,11 @@ https://github.com/JuliaImageRecon/ImageGeoms.jl
 [![docs-dev][docs-dev-img]][docs-dev-url]
 [![code-style][code-blue-img]][code-blue-url]
 
-This repo exports the type `ImageGeom`
+This Julia package exports the type `ImageGeom`
 and corresponding constructor methods.
+It is useful for describing
+the pixel or voxel grid
+for tomographic image reconstruction.
 
 For an explanation see the documentation
 using the blue "docs" links above.
@@ -39,17 +42,20 @@ see the
 [documentation](https://juliaimagerecon.github.io/ImageGeoms.jl/stable).
 
 
-### [Dependents](https://juliahub.com/ui/Packages/ImageGeoms/itbva)
+### Dependents
 
 * [Michigan Image Reconstruction Toolbox (MIRT)](https://github.com/JeffFessler/MIRT.jl)
-* [Sinograms.jl](https://github.com/todo/Sinograms.jl)
-* [SPECTrecon.jl](https://github.com/todo/SPECTrecon.jl)
+* [ImagePhantoms.jl](https://github.com/JuliaImageRecon/ImagePhantoms.jl)
+* [Sinograms.jl](https://github.com/JuliaImageRecon/Sinograms.jl)
+* [SPECTrecon.jl](https://github.com/JuliaImageRecon/SPECTrecon.jl)
+* See [juliahub](https://juliahub.com/ui/Search?q=ImageGeoms&type=packages)
 
 
 ### Related packages
 
 * [AxisArrays](https://github.com/JuliaArrays/AxisArrays.jl)
 * [ImageAxes](https://github.com/JuliaImages/ImageAxes.jl)
+* [LazyGrids](https://github.com/JuliaArrays/LazyGrids.jl)
 
 
 ### Compatibility
