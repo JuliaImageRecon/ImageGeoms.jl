@@ -7,7 +7,8 @@ export ImageGeom
 export downsample, oversample, expand_nz
 export axis, grids, axisf, axesf, gridf
 
-#using ImageGeoms: downsample, upsample, ndgrid_lazy
+#using ImageGeoms: downsample, upsample
+using LazyGrids: ndgrid
 using FillArrays: Trues, Falses, Zeros, Ones
 
 
@@ -216,7 +217,7 @@ axis(ig::ImageGeom{D}, d::Int) where D =
     _axis(ig.dims[d], ig.deltas[d], ig.offsets[d])
 Base.axes(ig::ImageGeom{D}) where D = ntuple(d -> axis(ig, d), Val(D))
 
-grids(ig::ImageGeom) = ndgrid_lazy(axes(ig)...) # spatial grids
+grids(ig::ImageGeom) = ndgrid(axes(ig)...) # spatial grids
 
 # spatial frequency axes
 _axisf(n::Int, Δ::RealU) = (-n/2:n/2-1) / (n*Δ)
@@ -224,4 +225,4 @@ axisf(ig::ImageGeom{D}, d::Int) where {D} =
     _axisf(ig.dims[d], ig.deltas[d])
 axesf(ig::ImageGeom{D}) where {D} = ntuple(d -> axisf(ig, d), Val(D))
 
-gridf(ig::ImageGeom) = ndgrid_lazy(axesf(ig)...) # spectral grids
+gridf(ig::ImageGeom) = ndgrid(axesf(ig)...) # spectral grids

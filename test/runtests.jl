@@ -5,7 +5,6 @@ using ImageGeoms
 
 include("core.jl")
 include("imresize.jl")
-include("ndgrid.jl")
 include("makemask.jl")
 include("mask.jl")
 #include("property.jl")
