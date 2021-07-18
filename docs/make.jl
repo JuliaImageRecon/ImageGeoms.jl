@@ -44,7 +44,6 @@ format = Documenter.HTML(;
 makedocs(;
     modules = [ImageGeoms],
     authors = "Jeff Fessler and contributors",
-#   repo = "https://github.com/juliaimagerecon/ImageGeoms.jl/blob/{commit}{path}#{line}",
     sitename = "ImageGeoms.jl",
     format,
     pages = [
