@@ -25,12 +25,12 @@ https://discourse.julialang.org/t/efficient-non-allocating-in-place-getindex-for
     x::AbstractArray{T,D},
     mask::AbstractArray{Bool,D},
 ) where {T,D}
-    axes(y) == (Base.OneTo(sum(mask)),) || throw("y axes $(axes(y))")
+    axes(y) == (Base.OneTo(count(mask)),) || throw("y axes $(axes(y))")
     axes(mask) == axes(x) || throw(DimensionMismatch("x vs mask"))
-    count = 1
+    accum = 1
     @inbounds for i in 1:LinearIndices(mask)[findlast(mask)]
-        y[count] = x[i]
-        count += mask[i]
+        y[accum] = x[i]
+        accum += mask[i]
     end
     return y
 end
@@ -64,7 +64,7 @@ mask_outline(mask::AbstractArray{Bool,3}) = mask_outline(mask_or(mask))
 
 """
     embed!(array, v, mask ; filler=0)
-embed vector `v` of length `sum(mask)`
+Embed vector `v` of length `count(mask)`
 into elements of `array` where `mask` is `true`,
 setting the remaining elements to `filler` (default 0).
 """
@@ -77,7 +77,7 @@ embed!(array::AbstractArray{T,D}, v::AbstractVector{<:Number},
 """
     array = embed(v, mask ; filler=0)
 
-embed vector `v` of length `sum(mask)`
+Embed vector `v` of length `count(mask)`
 into elements of an array where `mask` is `true`; see `embed!`.
 """
 embed(v::AbstractVector{T}, mask::AbstractArray{Bool} ;
@@ -90,7 +90,7 @@ embed(v::AbstractVector{T}, mask::AbstractArray{Bool} ;
 
 Embed each column of `matrix` into `mask` then `cat` along next dimension
 In:
-* `matrix [sum(mask) L]`
+* `matrix [count(mask) L]`
 * `mask [(N)]`
 
 Out:

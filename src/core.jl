@@ -136,7 +136,7 @@ function Base.show(io::IO, ::MIME"text/plain", ig::ImageGeom{D}) where D
     f = :mask
     mask = getproperty(ig, f)
     print(io, " ", f, ":", " ", summary(mask))
-    println(io, " {", sum(mask), " of ", length(mask), "}")
+    println(io, " {", count(mask), " of ", length(mask), "}")
 end
 
 Base.ndims(ig::ImageGeom{D}) where D = D
