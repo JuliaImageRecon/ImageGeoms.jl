@@ -41,4 +41,3 @@ jobs:
           ssh: ${{ secrets.DOCUMENTER_KEY }}
           DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
         run: julia --project=docs/ docs/make.jl
-

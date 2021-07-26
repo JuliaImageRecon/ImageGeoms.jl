@@ -104,11 +104,15 @@ end
 """
     show(io::IO, ::MIME"text/plain", ig::ImageGeom)
 """
-function Base.show(io::IO, ::MIME"text/plain", ig::ImageGeom)
+function Base.show(io::IO, ::MIME"text/plain", ig::ImageGeom{D}) where D
     println(io, typeof(ig))
     for f in (:dims, :deltas, :offsets)
         p = getproperty(ig, f)
-        println(io, " ", f, "::", typeof(p), " ", p)
+        t = typeof(p)
+        if p isa NTuple{D, typeof(p[1])}
+            t = "NTuple{$D,$(typeof(p[1]))}"
+        end
+        println(io, " ", f, "::", t, " ", p)
     end
     f = :mask
     mask = getproperty(ig, f)
