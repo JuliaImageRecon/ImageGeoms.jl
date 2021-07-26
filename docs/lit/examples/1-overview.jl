@@ -165,3 +165,8 @@ ig_down = downsample(ig, 4)
 # to simulate data; use `oversample` for this.
 
 ig_over = oversample(ig, (2,2))
+
+
+# Just for debugging:
+using Pkg
+Pkg.status("ImageGeoms")
