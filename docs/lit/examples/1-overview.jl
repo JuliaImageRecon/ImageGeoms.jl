@@ -86,7 +86,7 @@ ig = ImageGeom( dims=(12,10), deltas=(1mm,1mm), offsets=(0.5,0.5) )
 showgrid = (ig) -> begin # x,y grid locations of pixel centers
     x = axis(ig, 1)
     y = axis(ig, 2)
-	(xg, yg) = grids(ig)
+    (xg, yg) = grids(ig)
     scatter(xg, yg, label="", xlabel="x", ylabel="y",
         xlims = maximum(abs, x) * 1.2 .* (-1,1),
         xticks = [x[1], zero(eltype(x)), x[end]],

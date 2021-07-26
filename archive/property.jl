@@ -142,7 +142,7 @@ wg(ig::ImageGeom) = gridf(ig)[3]
 function help(ig::ImageGeom; io::IO = isinteractive() ? stdout : devnull)
     print(io, "propertynames:\n")
     println(io, propertynames(ig))
-	@doc ImageGeomHelp
+    @doc ImageGeomHelp
 end
 
 # Extended properties

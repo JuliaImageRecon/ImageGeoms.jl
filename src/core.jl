@@ -51,10 +51,23 @@ end
 
 """
     ig = ImageGeom(dims::Dims, deltas, offsets, [, mask])
-Constructor for `ImageGeom`.
-The `deltas` elements should each be `Real` or a `Unitful.Length`.
-The `dims`, `deltas` and `offsets` tuples must be same length.
-Default `mask` is `FillArrays.Trues(dims)` which is akin to `trues(dims)`.
+Constructor for `ImageGeom` of dimensions `dims`.
+* The `deltas` elements (tuple of grid spacings)
+  should each be `Real` or a `Unitful.Length`; default `(1,…,1)`.
+* The `offsets` (tuple of grid offsets) must be unitless;  default `(0,…,0)`.
+* The `dims`, `deltas` and `offsets` tuples must be same length.
+* Default `mask` is `FillArrays.Trues(dims)` which is akin to `trues(dims)`.
+
+# Example
+
+```jldoctest
+julia> ImageGeom((5,7), (2,3))
+ImageGeom{2, NTuple{2,Int64}}
+ dims::NTuple{2,Int64} (5, 7)
+ deltas::NTuple{2,Int64} (2, 3)
+ offsets::NTuple{2,Float32} (0.0f0, 0.0f0)
+ mask: 5×7 Ones{Bool} {35 of 35}
+```
 """
 function ImageGeom(
     dims::Dims{D},
@@ -67,8 +80,8 @@ end
 
 function ImageGeom(
     dims::Dims{D},
-    deltas::NTuple{D,RealU},
-    offsets::NTuple{D,Real},
+    deltas::NTuple{D,RealU} = ntuple(i -> 1, D),
+    offsets::NTuple{D,Real} = ntuple(i -> 0, D),
 ) where {D}
     ImageGeom(dims, deltas, offsets, Trues(dims))
 end
@@ -100,20 +113,30 @@ end
 
 ## Methods
 
+# Simplify type display of Tuple to NTuple if possible
+function _typeof(x::Tuple)
+    D = length(x)
+    return x isa NTuple{D, typeof(x[1])} ?
+        "NTuple{$D,$(typeof(x[1]))}" : typeof(x)
+end
+
 
 """
     show(io::IO, ::MIME"text/plain", ig::ImageGeom)
 """
-function Base.show(io::IO, ::MIME"text/plain", ig::ImageGeom)
-    println(io, typeof(ig))
+function Base.show(io::IO, ::MIME"text/plain", ig::ImageGeom{D}) where D
+    t = typeof(ig)
+    t = replace(string(t), string(typeof(ig.dims)) => string(_typeof(ig.dims)))
+    println(io, t)
     for f in (:dims, :deltas, :offsets)
         p = getproperty(ig, f)
-        println(io, " ", f, "::", typeof(p), " ", p)
+        t = _typeof(p)
+        println(io, " ", f, "::", t, " ", p)
     end
     f = :mask
     mask = getproperty(ig, f)
     print(io, " ", f, ":", " ", summary(mask))
-    println(io, " {", sum(mask), " of ", length(mask), "}")
+    println(io, " {", count(mask), " of ", length(mask), "}")
 end
 
 Base.ndims(ig::ImageGeom{D}) where D = D
