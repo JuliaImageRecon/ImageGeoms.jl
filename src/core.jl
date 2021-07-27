@@ -61,10 +61,10 @@ Constructor for `ImageGeom` of dimensions `dims`.
 # Example
 
 ```jldoctest
-julia> ImageGeom((5,7), (2,3))
-ImageGeom{2, NTuple{2,Int64}}
+julia> ImageGeom((5,7), (2.,3.))
+ImageGeom{2, NTuple{2,Float64}}
  dims::NTuple{2,Int64} (5, 7)
- deltas::NTuple{2,Int64} (2, 3)
+ deltas::NTuple{2,Float64} (2.0, 3.0)
  offsets::NTuple{2,Float32} (0.0f0, 0.0f0)
  mask: 5×7 Ones{Bool} {35 of 35}
 ```
@@ -126,7 +126,7 @@ end
 """
 function Base.show(io::IO, ::MIME"text/plain", ig::ImageGeom{D}) where D
     t = typeof(ig)
-    t = replace(string(t), string(typeof(ig.dims)) => string(_typeof(ig.dims)))
+    t = replace(string(t), string(typeof(ig.deltas)) => string(_typeof(ig.deltas)))
     println(io, t)
     for f in (:dims, :deltas, :offsets)
         p = getproperty(ig, f)
