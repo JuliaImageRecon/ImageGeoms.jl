@@ -89,3 +89,10 @@ end
     @test (@inferred axesf(i3)) isa Tuple
     @test (@inferred gridf(i3)) isa Tuple
 end
+
+
+@testset "down" begin
+    dims = (6,3)
+    ig = @inferred ImageGeom(; dims)
+    @test_throws String downsample(ig, (2,4))
+end
