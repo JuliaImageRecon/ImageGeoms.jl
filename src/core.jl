@@ -15,7 +15,7 @@ using FillArrays: Trues, Falses, Zeros, Ones
 ## Type
 
 """
-    ImageGeom{D,S}
+    ImageGeom{D,S,M}
 
 Image geometry struct with essential grid parameters.
 
@@ -23,25 +23,28 @@ Image geometry struct with essential grid parameters.
 - `deltas::S` where `S <: NTuple{D}` pixel sizes,
   where each Δ is usually `Real` or `Unitful.Length`
 - `offsets::NTuple{D,Float32}` unitless
-- `mask::AbstractArray{Bool,D}` logical mask, often `FillArrays.Trues(dims)`.
+- `mask::M` where `M <: AbstractArray{Bool,D}` logical mask, often `FillArrays.Trues(dims)`.
 """
-struct ImageGeom{D, S <: NTuple{D,RealU}}
+struct ImageGeom{D,S,M} # S <: NTuple{D,RealU}, M <: AbstractArray{Bool,D}}
     dims::Dims{D} # image dimensions
     deltas::S # pixel sizes
     offsets::NTuple{D,Float32} # unitless
-    mask::AbstractArray{Bool,D} # logical mask for image support
+    mask::M # logical mask for image support
 
-    function ImageGeom{D,S}(
+    function ImageGeom{D,S,M}(
         dims::Dims{D},
         deltas::S,
         offsets::NTuple{D,Real},
-        mask::AbstractArray{Bool,D},
-    ) where {D, S <: NTuple{D,RealU}} # i.e., Union{Real,Unitful.Length}
+        mask::M
+    ) where {D,
+            S <: NTuple{D,RealU}, # i.e., Union{Real,Unitful.Length}
+            M <: AbstractArray{Bool,D},
+        }
         any(<=(zero(Int)), dims) && throw("dims must be positive")
         any(iszero, deltas) && throw("deltas must be nonzero")
         size(mask) == dims ||
             throw(DimensionMismatch("mask size $(size(mask)) vs dims $dims"))
-        new{D,S}(dims, deltas, Float32.(offsets), mask)
+        new{D,S,M}(dims, deltas, Float32.(offsets), mask)
     end
 end
 
@@ -73,9 +76,9 @@ function ImageGeom(
     dims::Dims{D},
     deltas::S,
     offsets::NTuple{D,Real},
-    mask::AbstractArray{Bool,D},
-) where {D, S <: NTuple{D,RealU}}
-    ImageGeom{D,S}(dims, deltas, offsets, mask)
+    mask::M,
+) where {D, S <: NTuple{D,RealU}, M <: AbstractArray{Bool,D}}
+    ImageGeom{D,S,M}(dims, deltas, offsets, mask)
 end
 
 function ImageGeom(
@@ -86,6 +89,7 @@ function ImageGeom(
     ImageGeom(dims, deltas, offsets, Trues(dims))
 end
 
+
 """
     ig = ImageGeom( ; dims=(nx,ny), deltas=(1,1), offsets=(0,0), mask=Trues )
 Constructor using named keywords.
@@ -94,8 +98,9 @@ function ImageGeom( ;
     dims::Dims{D} = (128,128),
     deltas::NTuple{D,RealU} = ntuple(i -> 1.0f0, length(dims)),
     offsets::NTuple{D,Real} = ntuple(i -> 0.0f0, length(dims)),
-    mask::AbstractArray{Bool,D} = Trues(dims),
-) where {D}
+    mask::M = Trues(dims),
+) where {D, M <: AbstractArray{Bool}}
+    D == ndims(mask) || throw(DimensionMismatch("D=$D mask size $(size(mask))"))
     ImageGeom(dims, deltas, offsets, mask)
 end
 
@@ -160,9 +165,10 @@ Base.zero(ig::ImageGeom{D,S}) where {D, S <: NTuple{D,T}} where {T <: Real} = ze
 """
     ig_down = downsample(ig, down::Tuple{Int})
 Down sample an image geometry by the factor `down`.
-cf `image_geom_downsample`
+Image size `ig.dims` must be ≥ `down`.
+cf `image_geom_downsample`.
 """
-function downsample(ig::ImageGeom{D,S}, down::NTuple{D,Int}) where {D,S}
+function downsample(ig::ImageGeom{D,S,M}, down::NTuple{D,Int}) where {D,S,M}
 
     any(ig.dims .< down) && throw("dims=$(ig.dims) < down=$down")
     down_dim = ig.dims .÷ down # round down (if needed)
@@ -170,14 +176,14 @@ function downsample(ig::ImageGeom{D,S}, down::NTuple{D,Int}) where {D,S}
     down_offsets = ig.offsets ./ down # adjust offsets to new "pixel" units
 
     # carefully down-sample the mask
-    if ig.mask isa Trues || all(ig.mask)
+    if ig.mask isa Trues # || all(ig.mask)
         down_mask = Trues(down_dim)
     else
         v = view(ig.mask, Base.OneTo.(down_dim .* down)...)
         down_mask = downsample(v, down)
     end
 
-    return ImageGeom{D,S}(down_dim, deltas, down_offsets, down_mask)
+    return ImageGeom{D,S,M}(down_dim, deltas, down_offsets, down_mask)
 end
 
 downsample(ig::ImageGeom{D}, down::Int) where {D} =
@@ -189,7 +195,7 @@ downsample(ig::ImageGeom{D}, down::Int) where {D} =
 Over-sample an image geometry by the factor `over`.
 """
 function oversample(ig::ImageGeom{D,S}, over::NTuple{D,Int}) where {D,S}
-    if ig.mask isa Trues || all(ig.mask)
+    if ig.mask isa Trues # || all(ig.mask)
         mask_over = Trues(ig.dims .* over)
     else
         mask_over = upsample(ig.mask, over)
@@ -207,7 +213,7 @@ oversample(ig::ImageGeom{D}, over::Int) where {D} =
     ig_new = expand_nz(ig::ImageGeom{3}, nz_pad::Int)
 Pad both ends along z.
 """
-function expand_nz(ig::ImageGeom{3,S}, nz_pad::Int) where S
+function expand_nz(ig::ImageGeom{3,S,M}, nz_pad::Int) where {S,M}
     out_nz = size(ig,3) + 2*nz_pad
     if ig.mask isa Trues
         out_mask = Trues(ig.dims[1:2]..., out_nz)
@@ -216,7 +222,7 @@ function expand_nz(ig::ImageGeom{3,S}, nz_pad::Int) where S
             ig.mask, repeat(ig.mask[:,:,end], 1, 1, nz_pad),
         )
     end
-    return ImageGeom{3,S}((ig.dims[1], ig.dims[2], out_nz),
+    return ImageGeom{3,S,M}((ig.dims[1], ig.dims[2], out_nz),
         ig.deltas, ig.offsets, out_mask,
     )
 end
