@@ -13,8 +13,8 @@ function embed_test()
     b = similar(a)
     @test (@inferred embed(v,mask)) == a
     @test (@inferred embed([v 2v], mask)) == cat(dims=3, a, 2a)
-    @test embed!(b, v, mask ; filler=-1) == a + (-1) * .!mask
-#    @test embed(sparse(1:3),mask) == sparse([0 2 3; 1 0 0]) # later
+    @test (@inferred embed!(b, v, mask ; filler=-1)) == a + (-1) * .!mask
+#   @test embed(sparse(1:3),mask) == sparse([0 2 3; 1 0 0]) # later
     true
 end
 
