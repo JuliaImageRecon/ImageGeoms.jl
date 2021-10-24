@@ -1,37 +1,38 @@
 # tests for properties
 
 using ImageGeoms
+using FillArrays: Trues, Falses, Zeros, Ones
 using Test: @test, @testset, @test_throws, @inferred
 
 # test 2D properties
 function image_geom_test2(ig::ImageGeom)
-    ig.dims
-    ig.deltas
-    ig.offsets
+    @test ig.dims isa Tuple
+    @test ig.deltas isa Tuple
+    @test ig.offsets isa Tuple
 
-    ig.dim
-    ig.x
-    ig.y
-    ig.wx
-    ig.wy
-    ig.xg
-    ig.yg
-    ig.fovs
-    ig.np
+    @test ig.dim isa Tuple
+    @test ig.x isa AbstractVector
+    @test ig.y isa AbstractVector
+    @test ig.wx isa Number
+    @test ig.wy isa Number
+    @test ig.xg isa AbstractArray
+    @test ig.yg isa AbstractArray
+    @test ig.fovs isa Tuple
+    @test ig.np isa Int
 #   ig.mask_outline
-    ig.ones
-    ig.zeros
-    ig.u
-    ig.v
-    ig.ug
-    ig.vg
+    @test ig.ones isa Ones
+    @test ig.zeros isa Zeros
+    @test ig.u isa AbstractVector
+    @test ig.v isa AbstractVector
+    @test ig.ug isa AbstractArray
+    @test ig.vg isa AbstractArray
 #   ig.fg
 
     @test ig.shape(vec(ig.ones)) == ig.ones
     @test ig.embed(ig.ones[ig.mask]) == ig.mask
     @test ig.maskit(ig.ones) == ones(ig.np)
 #   @inferred # todo
-    ig.unitv()
+    @inferred ig.unitv()
     ig.unitv(j=4)
     ig.unitv(i=ntuple(i->1, length(ig.dim)))
     ig.unitv(c=ntuple(i->0, length(ig.dim)))

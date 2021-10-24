@@ -71,71 +71,58 @@ ImageGeomHelp
 
 
 """
-    out = image_geom_add_unitv(z::AbstractArray ; j=?, i=?, c=?)
+    out = image_geom_unitv(dims::Dims ; j=?, i=?, c=?, T=?)
 
-Add a unit vector to an initial array `z` (typically of zeros).
+Return a standard unit vector (Kronecker impulse).
 
 # options (use at one of these):
 - `j` single index from 1 to length(z)
 - `i` (ix, iy [,iz]) index from 1 to nx,ny
 - `c` (cx, cy [,cz]) index from +/- n/2 center at floor(n/2)+1
+- `T::DataType` default `Bool`
 
 Default with no arguments gives unit vector at center `c=(0, 0 [,0])`
 """
-function image_geom_add_unitv(
-    z::AbstractArray{T, D} ; # starts with zeros()
+function image_geom_unitv(
+    dims::Dims{D} ;
+    T::DataType = Bool,
     j::Int = 0,
     i::NTuple{D,Int} = ntuple(i -> 0, D),
     c::NTuple{D,Int} = ntuple(i -> 0, D),
-) where {T <: Number, D}
+)::Array{T, D} where {D}
 
-    out = collect(z)
+    out = zeros(T, dims)
+@show T, typeof(out)
 
-    (j < 0 || j > length(z)) && throw("bad j $j")
-    if 1 <= j <= length(z)
+#=
+    (j < 0 || j > length(out)) && throw("bad j $j")
+    if 1 <= j <= length(out)
         any(!=(0), i) && throw("i $i")
         any(!=(0), c) && throw("c $c")
-        out[j] += one(T)
-    elseif all(1 .<= i .<= size(z))
+        out[j] = one(T)
+    elseif all(1 .<= i .<= size(out))
         any(!=(0), c) && throw("c $c")
-        out[i...] += one(T)
+        out[i...] = one(T)
     else
         any(!=(0), i) && throw("i $i")
         tmp = c .+ (size(out) .÷ 2) .+ 1
-        out[tmp...] += one(T)
+        out[tmp...] = one(T)
     end
+=#
 
-    return out
+    return out::Array{T, D}
 end
 
 
-# spatial axes and grids ala ndgrid (lazy for ≥ 3D)
-
-xg(ig::ImageGeom{1}) = ig.x
-xg(ig::ImageGeom{2}) = repeat(ig.x, 1, ig.dims[2])
+# spatial axes grids ala ndgrid
 xg(ig::ImageGeom) = grids(ig)[1]
-
-yg(ig::ImageGeom{1}) = Zeros{Float32}(ig.dims)
-yg(ig::ImageGeom{2}) = repeat(ig.y', ig.nx, 1)
 yg(ig::ImageGeom) = grids(ig)[2]
-
-zg(ig::ImageGeom{1}) = Zeros{Float32}(ig.dims)
-zg(ig::ImageGeom{2}) = Zeros{Float32}(ig.dims)
 zg(ig::ImageGeom) = grids(ig)[3]
 
 
-# spatial frequency axes and grids ala ndgrid (lazy for ≥ 3D)
-
-ug(ig::ImageGeom{1}) = ig.u
-ug(ig::ImageGeom{2}) = repeat(ig.u, 1, ig.dims[2])
+# spatial frequency axes grids ala ndgrid
 ug(ig::ImageGeom) = gridf(ig)[1]
-
-vg(ig::ImageGeom{1}) = Zeros{Float32}(ig.dims)
-vg(ig::ImageGeom{2}) = repeat(ig.v', ig.nx, 1)
 vg(ig::ImageGeom) = gridf(ig)[2]
-
-wg(ig::ImageGeom{1}) = Zeros{Float32}(ig.dims)
-wg(ig::ImageGeom{2}) = Zeros{Float32}(ig.dims)
 wg(ig::ImageGeom) = gridf(ig)[3]
 
 
@@ -145,6 +132,7 @@ function help(ig::ImageGeom; io::IO = isinteractive() ? stdout : devnull)
     @doc ImageGeomHelp
 end
 
+
 # Extended properties
 
 image_geom_fun0 = Dict([
@@ -152,8 +140,8 @@ image_geom_fun0 = Dict([
 
     (:ndim, ig -> length(ig.dims)),
     (:nx, ig -> ig.dims[1]),
-    (:ny, ig -> ig.ndim >= 2 ? ig.dims[2] : 0),
-    (:nz, ig -> ig.ndim >= 3 ? ig.dims[3] : 0),
+    (:ny, ig -> ig.ndim ≥ 2 ? ig.dims[2] : 0),
+    (:nz, ig -> ig.ndim ≥ 3 ? ig.dims[3] : 0),
     (:dim, ig -> ig.dims),
     (:fovs, ig -> abs.(ig.deltas) .* ig.dims),
 
@@ -161,12 +149,12 @@ image_geom_fun0 = Dict([
     (:ones, ig -> ones(ig)),
 
     (:dx, ig -> ig.deltas[1]),
-    (:dy, ig -> ig.ndim >= 2 ? ig.deltas[2] : zero(ig)),
-    (:dz, ig -> ig.ndim >= 3 ? ig.deltas[3] : zero(ig)),
+    (:dy, ig -> ig.ndim ≥ 2 ? ig.deltas[2] : zero(ig)),
+    (:dz, ig -> ig.ndim ≥ 3 ? ig.deltas[3] : zero(ig)),
 
     (:offset_x, ig -> ig.offsets[1]),
-    (:offset_y, ig -> ig.ndim >= 2 ? ig.offsets[2] : Float32(0)),
-    (:offset_z, ig -> ig.ndim >= 3 ? ig.offsets[3] : Float32(0)),
+    (:offset_y, ig -> ig.ndim ≥ 2 ? ig.offsets[2] : Float32(0)),
+    (:offset_z, ig -> ig.ndim ≥ 3 ? ig.offsets[3] : Float32(0)),
 
     (:wx, ig -> (ig.nx - 1)/2 + ig.offset_x),
     (:wy, ig -> (ig.ny - 1)/2 + ig.offset_y),
@@ -200,7 +188,7 @@ image_geom_fun0 = Dict([
     (:embed, ig -> (x::AbstractArray -> embed(x, ig.mask))),
     (:maskit, ig -> (x::AbstractArray -> maskit(x, ig.mask))),
     (:shape, ig -> (x::AbstractArray -> reshape(x, ig.dims))),
-    (:unitv, ig -> (( ; kwargs...) -> image_geom_add_unitv(ig.zeros ; kwargs...))),
+    (:unitv, ig -> (( ; kwargs...) -> image_geom_unitv(ig.dim ; kwargs...))),
     (:circ, ig -> (( ; kwargs...) -> circle(ig ; kwargs...))),
 
     # functions that return new geometry
