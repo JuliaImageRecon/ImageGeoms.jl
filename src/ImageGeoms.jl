@@ -15,7 +15,6 @@ include("imresize.jl")
 include("makemask.jl")
 include("mask.jl")
 
-# excluded because the way it modifies getproperty causes type instability
-#include("property.jl")
+#include("property.jl") # exclude due to type inference issues
 
 end # module

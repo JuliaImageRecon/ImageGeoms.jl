@@ -45,7 +45,7 @@ end
     show(isinteractive() ? stdout : devnull, MIME("text/plain"), ig)
 
     for f in (zeros, ones, falses, trues)
-        @test f(ig.dims) == @inferred f(ig)
+        @test f(ig.dims) == (@inferred f(ig))
     end
     @test ndims(ig) == 2
     @test size(ig) == dims
