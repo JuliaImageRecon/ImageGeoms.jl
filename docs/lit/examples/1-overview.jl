@@ -2,8 +2,24 @@
 # # [ImageGeoms overview](@id 1-overview)
 #---------------------------------------------------------
 
-# This page explains the Julia package
-# [`ImageGeoms`](https://github.com/JuliaImageRecon/ImageGeoms.jl).
+#=
+This page explains the Julia package
+[`ImageGeoms`](https://github.com/JuliaImageRecon/ImageGeoms.jl).
+
+This page was generated from a single Julia file:
+[1-example.jl](@__REPO_ROOT_URL__/1-overview.jl).
+=#
+
+#md # In any such Julia documentation,
+#md # you can access the source code
+#md # using the "Edit on GitHub" link in the top right.
+
+#md # The corresponding notebook can be viewed in
+#md # [nbviewer](http://nbviewer.jupyter.org/) here:
+#md # [`1-overview.ipynb`](@__NBVIEWER_ROOT_URL__/1-overview.ipynb),
+#md # and opened in [binder](https://mybinder.org/) here:
+#md # [`1-overview.ipynb`](@__BINDER_ROOT_URL__/1-overview.ipynb).
+
 
 # ### Setup
 
@@ -12,31 +28,36 @@
 using ImageGeoms
 using MIRTjim: jim, prompt
 using Plots: scatter, plot!, default; default(markerstrokecolor=:auto)
+using InteractiveUtils: versioninfo
 
-# The following line is helpful when running this example.jl file as a script;
+
+# The following line is helpful when running this file as a script;
 # this way it will prompt user to hit a key after each figure is displayed.
 
 isinteractive() ? jim(:prompt, true) : prompt(:draw);
 
 # ### Overview
 
-# When performing tomographic image reconstruction,
-# one must specify the geometry of the grid of image pixels.
-# (In contrast, for image denoising and image deblurring problems,
-# one works with the given discrete image
-# and no physical coordinates are needed.)
 
-# The key parameters of a grid of image pixels are
-# * the size (dimensions) of the grid, e.g., `128 × 128`,
-# * the spacing of the pixels, e.g., `1mm × 1mm`,
-# * the offset of the pixels relative to the origin, e.g., `(0,0)`
+#=
+When performing tomographic image reconstruction,
+one must specify the geometry of the grid of image pixels.
+(In contrast, for image denoising and image deblurring problems,
+one works with the given discrete image
+and no physical coordinates are needed.)
 
-# The data type `ImageGeom` describes such a geometry,
-# for arbitrary dimensions (2D, 3D, etc.).
+The key parameters of a grid of image pixels are
+* the size (dimensions) of the grid, e.g., `128 × 128`,
+* the spacing of the pixels, e.g., `1mm × 1mm`,
+* the offset of the pixels relative to the origin, e.g., `(0,0)`
 
-# There are several ways to construct this structure.
-# The default is a `128 × 128` grid
-# with pixel size ``\Delta_X = \Delta_Y = 1`` (unitless) and zero offset:
+The data type `ImageGeom` describes such a geometry,
+for arbitrary dimensions (2D, 3D, etc.).
+
+There are several ways to construct this structure.
+The default is a `128 × 128` grid
+with pixel size ``\Delta_X = \Delta_Y = 1`` (unitless) and zero offset:
+=#
 
 ig = ImageGeom()
 
@@ -72,13 +93,15 @@ ig = ImageGeom( dims=(7,8), deltas=(3,2), offsets=(0,0.5) )
 axis(ig, 2)
 
 
-# For an axis of length `n` with spacing `Δ` (possibly with units)
-# and (always unitless but possibly non-integer) `offset` the axis
-# is a subtype of `AbstractRange` of the form
-# `( (0:n-1) .- ((n - 1)/2 + offset) ) * Δ`
+#=
+or an axis of length `n` with spacing `Δ` (possibly with units)
+and (always unitless but possibly non-integer) `offset` the axis
+is a subtype of `AbstractRange` of the form
+`( (0:n-1) .- ((n - 1)/2 + offset) ) * Δ`
 
+These axes are useful for plotting:
+=#
 
-# These axes are useful for plotting:
 ig = ImageGeom( dims=(12,10), deltas=(1mm,1mm), offsets=(0.5,0.5) )
 
 
@@ -129,18 +152,22 @@ plot!(p)
 prompt();
 
 
-# In that default geometry, the center `(0,0)` of the image
-# is at a corner of the middle 4 pixels (for even image sizes).
-# That default is typical for tomographic imaging (e.g., CT, PET, SPECT).
-# One must be careful when using operations like `imrotate` or `fft`.
+#=
+In that default geometry, the center `(0,0)` of the image
+is at a corner of the middle 4 pixels (for even image sizes).
+That default is typical for tomographic imaging (e.g., CT, PET, SPECT).
+One must be careful when using operations like `imrotate` or `fft`.
+=#
 
 
 
 # ### AxisArrays
 
-# There is a natural connection between `ImageGeom` and `AxisArrays`.
-# Note the automatic labeling of units (when relevant) on all axes by
-# [MIRTjim.jim](https://github.com/JeffFessler/MIRTjim.jl).
+#=
+There is a natural connection between `ImageGeom` and `AxisArrays`.
+Note the automatic labeling of units (when relevant) on all axes by
+[MIRTjim.jim](https://github.com/JeffFessler/MIRTjim.jl).
+=#
 
 using AxisArrays
 using Unitful: mm
@@ -167,6 +194,13 @@ ig_down = downsample(ig, 4)
 ig_over = oversample(ig, (2,2))
 
 
-# Just for debugging:
-using Pkg
-Pkg.status("ImageGeoms")
+# This page was generated with the following version of Julia:
+
+io = IOBuffer()
+versioninfo(io)
+split(String(take!(io)), '\n')
+
+
+# And with the following package versions
+
+import Pkg; Pkg.status()
