@@ -65,7 +65,7 @@ Constructor for `ImageGeom` of dimensions `dims`.
 
 ```jldoctest
 julia> ImageGeom((5,7), (2.,3.))
-ImageGeom{2, NTuple{2,Float64}}
+ImageGeom{2, NTuple{2,Float64}, FillArrays.Trues{2, Tuple{Base.OneTo{Int64}, Base.OneTo{Int64}}}}
  dims::NTuple{2,Int64} (5, 7)
  deltas::NTuple{2,Float64} (2.0, 3.0)
  offsets::NTuple{2,Float32} (0.0f0, 0.0f0)
