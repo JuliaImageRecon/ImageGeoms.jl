@@ -25,8 +25,9 @@ This page was generated from a single Julia file:
 
 # Packages needed here.
 
-using ImageGeoms
-using MIRTjim: jim, prompt
+using MIRTjim: jim, prompt # must be first!
+using ImageGeoms: ImageGeom, MaskCircle, MaskAllButEdge
+using ImageGeoms: maskit, embed, embed!, getindex!, jim #, size
 using UnitfulRecipes
 using Unitful: mm
 using InteractiveUtils: versioninfo
@@ -63,7 +64,7 @@ ig = ImageGeom(MaskCircle() ; dims=(40,32), deltas=(1mm,1mm))
 
 # That last line shows that 716 of 1280=40*32 mask pixels are nonzero.
 
-ImageGeoms.plot(ig, jim)
+jim(ig)
 
 
 #=
@@ -76,7 +77,7 @@ that collapses it to 2D:
 
 ig = ImageGeom(MaskAllButEdge() ; dims=(32,32,16))
 
-ImageGeoms.plot(ig, jim)
+jim(ig)
 
 
 # ### Mask operations
@@ -107,6 +108,8 @@ getindex!(core, ramp, ig.mask)
 array = collect(zeros(Float16, ig))
 embed!(array, core, ig.mask)
 
+
+# ### Reproducibility
 
 # This page was generated with the following version of Julia:
 

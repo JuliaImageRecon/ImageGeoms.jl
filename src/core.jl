@@ -25,7 +25,7 @@ Image geometry struct with essential grid parameters.
 - `offsets::NTuple{D,Float32}` unitless
 - `mask::M` where `M <: AbstractArray{Bool,D}` logical mask, often `FillArrays.Trues(dims)`.
 """
-struct ImageGeom{D,S,M} # S <: NTuple{D,RealU}, M <: AbstractArray{Bool,D}}
+struct ImageGeom{D, S <: NTuple{D,RealU}, M <: AbstractArray{Bool,D}}
     dims::Dims{D} # image dimensions
     deltas::S # pixel sizes
     offsets::NTuple{D,Float32} # unitless
@@ -65,7 +65,7 @@ Constructor for `ImageGeom` of dimensions `dims`.
 
 ```jldoctest
 julia> ImageGeom((5,7), (2.,3.))
-ImageGeom{2, NTuple{2,Float64}}
+ImageGeom{2, NTuple{2,Float64}, FillArrays.Trues{2, Tuple{Base.OneTo{Int64}, Base.OneTo{Int64}}}}
  dims::NTuple{2,Int64} (5, 7)
  deltas::NTuple{2,Float64} (2.0, 3.0)
  offsets::NTuple{2,Float32} (0.0f0, 0.0f0)
@@ -226,17 +226,6 @@ function expand_nz(ig::ImageGeom{3,S,M}, nz_pad::Int) where {S,M}
         ig.deltas, ig.offsets, out_mask,
     )
 end
-
-
-"""
-    plot(ig, how ; kwargs...)
-The `how` argument should be `MIRTjim.jim` to be useful.
-"""
-plot(ig::ImageGeom{2}, how::Function ; kwargs...) =
-    how(axes(ig)..., ig.mask, "(nx,ny)=$(ig.dims)" ; kwargs...)
-plot(ig::ImageGeom{3}, how::Function ; kwargs...) =
-    how(axis(ig,1), axis(ig,2), mask_or(ig.mask),
-        "(dx,dy,dz)=$(ig.deltas)" ; kwargs...)
 
 
 # spatial axes

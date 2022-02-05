@@ -9,6 +9,7 @@ include("core.jl")
 include("imresize.jl")
 include("makemask.jl")
 include("mask.jl")
+include("jim.jl")
 #include("property.jl")
 
 @testset "ImageGeoms" begin

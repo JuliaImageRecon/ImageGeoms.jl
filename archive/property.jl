@@ -59,7 +59,7 @@ Derived values for 3D images:
   * `c`: (cx,cy[,cz]) index from +/- n/2 center at floor(n/2)+1
 
 * `circ(rx=,ry=,cx=,cy=)` circle of given radius and center (cylinder in 3D)
-* `plot(jim)` plot the image geometry using the `MIRTjim.jim` function
+* `plot(jim)` plot the image geometry using the `MIRTjim.jim` function # todo - method
 
 ## Methods that return a new `ImageGeom:`
 
@@ -184,7 +184,7 @@ image_geom_fun0 = Dict([
 
     # simple functions
 
-    (:plot, ig -> ((how::Function ; kwargs...) -> plot(ig, how ; kwargs...))),
+#   (:plot, ig -> ((how::Function ; kwargs...) -> plot(ig, how ; kwargs...))), # todo cut
     (:embed, ig -> (x::AbstractArray -> embed(x, ig.mask))),
     (:maskit, ig -> (x::AbstractArray -> maskit(x, ig.mask))),
     (:shape, ig -> (x::AbstractArray -> reshape(x, ig.dims))),
