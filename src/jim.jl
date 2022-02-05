@@ -1,14 +1,16 @@
 # jim.jl
 
-#using .MIRTjim: jim
 import .MIRTjim: jim
 
 #using ImageGeoms: ImageGeom
 
+export jim
+
 
 """
     jim(ig ; kwargs...)
-Display the support mask
+Display the support mask.
+Requires package `MIRTjim` to be loaded first.
 """
 jim(ig::ImageGeom{2} ; kwargs...) =
     jim(axes(ig)..., ig.mask; title = "(nx,ny)=$(ig.dims)", kwargs...)
