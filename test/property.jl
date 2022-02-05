@@ -39,12 +39,9 @@ function image_geom_test2(ig::ImageGeom)
 #= todo-i: why do these fail?
     @inferred image_geom_ellipse(8, 10, 1, 2)
     @inferred ig.circ()
-    @inferred ig.plot()
     @inferred ig.unitv()
 =#
     ig.circ()
-    how = (args...; kw...) -> args[1] # trick to avoid Plots
-    ig.plot(how)
     ig.unitv()
 #= todo-i:
     @inferred ig.down(2)

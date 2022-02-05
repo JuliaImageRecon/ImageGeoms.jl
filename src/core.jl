@@ -228,17 +228,6 @@ function expand_nz(ig::ImageGeom{3,S,M}, nz_pad::Int) where {S,M}
 end
 
 
-"""
-    plot(ig, how ; kwargs...)
-The `how` argument should be `MIRTjim.jim` to be useful.
-"""
-plot(ig::ImageGeom{2}, how::Function ; kwargs...) =
-    how(axes(ig)..., ig.mask, "(nx,ny)=$(ig.dims)" ; kwargs...)
-plot(ig::ImageGeom{3}, how::Function ; kwargs...) =
-    how(axis(ig,1), axis(ig,2), mask_or(ig.mask),
-        "(dx,dy,dz)=$(ig.deltas)" ; kwargs...)
-
-
 # spatial axes
 _center(n::Int, offset::Real) = (n - 1)/2 + offset
 _axis(n::Int, Δ::RealU, offset::Real) = ((0:n-1) .- _center(n, offset)) * Δ
