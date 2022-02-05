@@ -194,6 +194,8 @@ ig_down = downsample(ig, 4)
 ig_over = oversample(ig, (2,2))
 
 
+# ### Reproducibility
+
 # This page was generated with the following version of Julia:
 
 io = IOBuffer()

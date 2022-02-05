@@ -108,6 +108,8 @@ array = collect(zeros(Float16, ig))
 embed!(array, core, ig.mask)
 
 
+# ### Reproducibility
+
 # This page was generated with the following version of Julia:
 
 io = IOBuffer()
