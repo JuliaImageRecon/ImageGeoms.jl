@@ -25,7 +25,7 @@ Image geometry struct with essential grid parameters.
 - `offsets::NTuple{D,Float32}` unitless
 - `mask::M` where `M <: AbstractArray{Bool,D}` logical mask, often `FillArrays.Trues(dims)`.
 """
-struct ImageGeom{D,S,M} # S <: NTuple{D,RealU}, M <: AbstractArray{Bool,D}}
+struct ImageGeom{D, S <: NTuple{D,RealU}, M <: AbstractArray{Bool,D}}
     dims::Dims{D} # image dimensions
     deltas::S # pixel sizes
     offsets::NTuple{D,Float32} # unitless
