@@ -6,7 +6,9 @@ CurrentModule = ImageGeoms
 
 ## Overview
 
-This Julia module exports a composite type `ImageGeom`
+This Julia package
+[ImageGeoms.jl](https://github.com/JuliaImageRecon/ImageGeoms.jl)
+exports a composite type `ImageGeom`
 and corresponding constructors
 for describing the image sampling geometry
 for (typically tomographic) image reconstruction.

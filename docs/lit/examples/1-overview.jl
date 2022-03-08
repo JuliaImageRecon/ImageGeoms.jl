@@ -198,9 +198,7 @@ ig_over = oversample(ig, (2,2))
 
 # This page was generated with the following version of Julia:
 
-io = IOBuffer()
-versioninfo(io)
-split(String(take!(io)), '\n')
+io = IOBuffer(); versioninfo(io); split(String(take!(io)), '\n')
 
 
 # And with the following package versions
