@@ -1,6 +1,6 @@
 name = "ImageGeoms"
 uuid = "9ee76f2b-840d-4475-b6d6-e485c9297852"
-authors = ["Jeff Fessler <fessler@umich.edu>" and contributors]
+authors = ["Jeff Fessler <fessler@umich.edu> and contributors"]
 version = "0.6"
 
 [deps]
