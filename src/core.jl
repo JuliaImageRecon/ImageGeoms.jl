@@ -40,7 +40,7 @@ struct ImageGeom{D, S <: NTuple{D,RealU}, M <: AbstractArray{Bool,D}}
             S <: NTuple{D,RealU}, # i.e., Union{Real,Unitful.Length}
             M <: AbstractArray{Bool,D},
         }
-        any(<=(zero(Int)), dims) && throw("dims must be positive")
+        any(<=(0), dims) && throw("dims must be positive")
         any(iszero, deltas) && throw("deltas must be nonzero")
         size(mask) == dims ||
             throw(DimensionMismatch("mask size $(size(mask)) vs dims $dims"))
@@ -156,10 +156,10 @@ Base.ones(ig::ImageGeom) = ones(Float32, ig)
 Base.trues(ig::ImageGeom) = Trues(ig.dims...)
 Base.falses(ig::ImageGeom) = Falses(ig.dims...)
 
-Base.zero(ig::ImageGeom{D,S}) where {D, S <: NTuple{D,Real}} = zero(Float32)
-Base.zero(ig::ImageGeom{D,S}) where {D, S <: NTuple{D,Any}} = zero(Int32) # alert!
-Base.zero(ig::ImageGeom{D,S}) where {D, S <: NTuple{D,T}} where {T <: Number} = zero(T)
-Base.zero(ig::ImageGeom{D,S}) where {D, S <: NTuple{D,T}} where {T <: Real} = zero(T)
+#Base.zero(ig::ImageGeom{D,S}) where {D, S <: NTuple{D,Real}} = zero(Float32)
+#Base.zero(ig::ImageGeom{D,S}) where {D, S <: NTuple{D,Any}} = zero(Int32) # alert!
+#Base.zero(ig::ImageGeom{D,S}) where {D, S <: NTuple{D,T}} where {T <: Number} = zero(T)
+#Base.zero(ig::ImageGeom{D,S}) where {D, S <: NTuple{D,T}} where {T <: Real} = zero(T)
 
 
 """

@@ -149,8 +149,8 @@ image_geom_fun0 = Dict([
     (:ones, ig -> ones(ig)),
 
     (:dx, ig -> ig.deltas[1]),
-    (:dy, ig -> ig.ndim ≥ 2 ? ig.deltas[2] : zero(ig)),
-    (:dz, ig -> ig.ndim ≥ 3 ? ig.deltas[3] : zero(ig)),
+    (:dy, ig -> ig.ndim ≥ 2 ? ig.deltas[2] : zero(ig.deltas[1])),
+    (:dz, ig -> ig.ndim ≥ 3 ? ig.deltas[3] : zero(ig.deltas[1])),
 
     (:offset_x, ig -> ig.offsets[1]),
     (:offset_y, ig -> ig.ndim ≥ 2 ? ig.offsets[2] : Float32(0)),

@@ -52,10 +52,10 @@ end
     @test size(ig,1) == dims[1]
 
     # _zero tests
-    @test zero(ImageGeom((2,3), (3.0,4.0), (0,0))) === zero(Float64)
-    @test zero(ImageGeom((2,3), (3.0,4.0f0), (0,0))) === zero(Float32)
-    @test zero(ImageGeom((2,3), (3m,4.0), (0,0))) === zero(Int32) # alert
-    @test zero(ImageGeom((2,3), (3.0m,4.0m), (0,0))) === zero(0.0m)
+#   @test zero(ImageGeom((2,3), (3.0,4.0), (0,0))) === zero(Float64)
+#   @test zero(ImageGeom((2,3), (3.0,4.0f0), (0,0))) === zero(Float32)
+#   @test zero(ImageGeom((2,3), (3m,4.0), (0,0))) === zero(Int32) # alert
+#   @test zero(ImageGeom((2,3), (3.0m,4.0m), (0,0))) === zero(0.0m)
 
     ig_down = @inferred downsample(ig, (2,2))
     ig_over = @inferred oversample(ig_down, (2,2))
