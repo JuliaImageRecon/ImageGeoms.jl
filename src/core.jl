@@ -229,7 +229,8 @@ end
 
 
 # spatial axes
-_center(n::Int, offset::Real) = (n - 1)/2 + offset
+_center(n::Int, offset::Toffset) where {Toffset <: Real} =
+    Toffset((n - 1)/2 + offset) # maintain type of offset
 _axis(n::Int, Δ::RealU, offset::Real) = ((0:n-1) .- _center(n, offset)) * Δ
 axis(ig::ImageGeom{D}, d::Int) where D =
     _axis(ig.dims[d], ig.deltas[d], ig.offsets[d])
