@@ -25,9 +25,13 @@ This page was generated from a single Julia file:
 
 # Packages needed here.
 
-using ImageGeoms
+using ImageGeoms: ImageGeom, axis, axisf, axesf, downsample, grids, oversample
+import ImageGeoms # ellipse
+using AxisArrays
 using MIRTjim: jim, prompt
 using Plots: scatter, plot!, default; default(markerstrokecolor=:auto)
+import UnitfulRecipes
+using Unitful: mm, s
 using InteractiveUtils: versioninfo
 
 
@@ -78,8 +82,6 @@ ig = ImageGeom( dims=(512,512,128), deltas=(1,1,2), offsets=(0,0,0) )
 # The pixel dimensions `deltas` can (and should!) be values with units.
 
 # Here is an example for a video (2D+time) with 12 frames per second:
-using UnitfulRecipes
-using Unitful: mm, s
 
 ig = ImageGeom( dims=(640,480,1000), deltas=(1mm,1mm,(1//12)s) )
 
@@ -102,20 +104,23 @@ is a subtype of `AbstractRange` of the form
 These axes are useful for plotting:
 =#
 
-ig = ImageGeom( dims=(12,10), deltas=(1mm,1mm), offsets=(0.5,0.5) )
+ig = ImageGeom( dims=(10,8), deltas=(1mm,1mm), offsets=(0.5,0.5) )
 
 
 #
+_ticks(x, off) = [x[1]; # hopefully helpful tick marks
+    iseven(length(x)) && iszero(off) ?
+        oneunit(eltype(x)) * [-0.5,0.5] : zero(eltype(x)); x[end]]
 showgrid = (ig) -> begin # x,y grid locations of pixel centers
     x = axis(ig, 1)
     y = axis(ig, 2)
     (xg, yg) = grids(ig)
-    scatter(xg, yg, label="", xlabel="x", ylabel="y",
-        xlims = maximum(abs, x) * 1.2 .* (-1,1),
-        xticks = [x[1], zero(eltype(x)), x[end]],
-        ylims = maximum(abs, y) * 1.2 .* (-1,1),
-        yticks = [y[1], zero(eltype(y)), y[end]],
-        aspect_ratio=1, title="offsets $(ig.offsets)")
+    scatter(xg, yg; label="", xlabel="x", ylabel="y",
+        xlims = extrema(x) .+ (ig.deltas[1] * 0.5) .* (-1,1),
+        xticks = _ticks(x, ig.offsets[1]),
+        ylims = extrema(y) .+ (ig.deltas[2] * 0.5) .* (-1,1),
+        yticks = _ticks(y, ig.offsets[2]),
+        widen = true, aspect_ratio = 1, title = "offsets $(ig.offsets)")
 end
 showgrid(ig)
 
@@ -139,11 +144,11 @@ prompt();
 # That default for `offsets` is natural for tomography
 # when considering finite pixel size:
 
-square = (x,y,Δ) -> plot!(p, label="", color=:black,
+square = (x,y,Δ,p) -> plot!(p, label="", color=:black,
     x .+ Δ[1] * ([0,1,1,0,0] .- 0.5),
     y .+ Δ[2] * ([0,0,1,1,0] .- 0.5),
 )
-square2 = (x,y) -> square(x, y, ig.deltas)
+square2 = (x,y) -> square(x, y, ig.deltas, p)
 square2.(grids(ig)...)
 plot!(p)
 
@@ -160,6 +165,23 @@ One must be careful when using operations like `imrotate` or `fft`.
 =#
 
 
+#=
+### Odd dimensions
+If an image axis has an odd dimension,
+then each middle pixel along that axis
+is centered at 0,
+for the default `offset=0`.
+=#
+
+igo = ImageGeom( dims=(7,6) )
+po = showgrid(igo)
+square2 = (x,y) -> square(x, y, igo.deltas, po)
+square2.(grids(igo)...)
+plot!(po)
+
+#
+prompt();
+
 
 # ### AxisArrays
 
@@ -169,10 +191,8 @@ Note the automatic labeling of units (when relevant) on all axes by
 [MIRTjim.jim](https://github.com/JeffFessler/MIRTjim.jl).
 =#
 
-using AxisArrays
-using Unitful: mm
 ig = ImageGeom( dims=(60,48), deltas=(1.5mm,1mm) )
-za = AxisArray( ellipse(ig) * 10/mm ; x=axis(ig,1), y=axis(ig,2) )
+za = AxisArray( ImageGeoms.ellipse(ig) * 10/mm ; x=axis(ig,1), y=axis(ig,2) )
 jim(za, "AxisArray example")
 
 #
@@ -192,6 +212,27 @@ ig_down = downsample(ig, 4)
 # to simulate data; use `oversample` for this.
 
 ig_over = oversample(ig, (2,2))
+
+
+#=
+### Frequency domain axes
+For related packages like
+[`ImagePhantoms`](https://github.com/JuliaImageRecon/ImagePhantoms.jl),
+there are also `axisf` and `axesf` methods
+that return the frequency axes
+associated with an FFT-based approximation
+to a Fourier transform,
+where ``Δ_f Δ_X = 1/N.``
+=#
+ig = ImageGeom( dims=(4,5), deltas=(1mm,1mm) )
+axesf(ig)
+
+#
+axisf(ig, 1)
+
+#
+axisf(ig, 2)
+
 
 
 # ### Reproducibility
