@@ -129,7 +129,7 @@ end
 """
     show(io::IO, ::MIME"text/plain", ig::ImageGeom)
 """
-function Base.show(io::IO, ::MIME"text/plain", ig::ImageGeom{D}) where D
+function Base.show(io::IO, ::MIME"text/plain", ig::ImageGeom{D}) where {D}
     t = typeof(ig)
     t = replace(string(t), string(typeof(ig.deltas)) => string(_typeof(ig.deltas)))
     println(io, t)
@@ -144,7 +144,7 @@ function Base.show(io::IO, ::MIME"text/plain", ig::ImageGeom{D}) where D
     println(io, " {", count(mask), " of ", length(mask), "}")
 end
 
-Base.ndims(ig::ImageGeom{D}) where D = D
+Base.ndims(ig::ImageGeom{D}) where {D} = D
 Base.size(ig::ImageGeom) = ig.dims
 Base.size(ig::ImageGeom, d::Int) = ig.dims[d]
 
@@ -232,16 +232,16 @@ end
 _center(n::Int, offset::Toffset) where {Toffset <: Real} =
     Toffset((n - 1)/2 + offset) # maintain type of offset
 _axis(n::Int, Δ::RealU, offset::Real) = ((0:n-1) .- _center(n, offset)) * Δ
-axis(ig::ImageGeom{D}, d::Int) where D =
+axis(ig::ImageGeom{D}, d::Int) where {D} =
     _axis(ig.dims[d], ig.deltas[d], ig.offsets[d])
-Base.axes(ig::ImageGeom{D}) where D = ntuple(d -> axis(ig, d), Val(D))
+Base.axes(ig::ImageGeom{D}) where {D} = ntuple(d -> axis(ig, d), Val(D))
 
 grids(ig::ImageGeom) = ndgrid(axes(ig)...) # spatial grids
 
 # spatial frequency axes
-_axisf(n::Int, Δ::RealU) = (-n/2:n/2-1) / (n*Δ)
-axisf(ig::ImageGeom{D}, d::Int) where {D} =
-    _axisf(ig.dims[d], ig.deltas[d])
+_axisf(n::Int, Δ::RealU) =
+    (iseven(n) ? (-n/2:n/2-1) : (-(n-1)/2:(n-1)/2)) / (n*Δ)
+axisf(ig::ImageGeom{D}, d::Int) where {D} = _axisf(ig.dims[d], ig.deltas[d])
 axesf(ig::ImageGeom{D}) where {D} = ntuple(d -> axisf(ig, d), Val(D))
 
 gridf(ig::ImageGeom) = ndgrid(axesf(ig)...) # spectral grids
