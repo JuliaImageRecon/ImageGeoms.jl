@@ -99,11 +99,16 @@ end
 """
     ig = ImageGeom( ; dims=(nx,ny), deltas=(1,1), offsets=(0,0), mask=Trues )
 Constructor using named keywords.
+One can use `fovs` as an alternate keyword,
+in which case `deltas = fovs ./ dims`.
+The keyword `fov` applies to all dimensions.
 """
 function ImageGeom( ;
     dims::Dims{D} = (128,128),
-    deltas::NTuple{D,RealU} = ntuple(i -> 1.0f0, length(dims)),
-    offsets::Union{Symbol,NTuple{D,Real}} = ntuple(i -> 0.0f0, length(dims)),
+    fov::RealU = 0f0,
+    fovs::NTuple{D,RealU} = iszero(fov) ? Float32.(dims) : ntuple(i -> fov, length(dims)),
+    deltas::NTuple{D,RealU} = fovs ./ dims, # ntuple(i -> 0f0, length(dims)),
+    offsets::Union{Symbol,NTuple{D,Real}} = ntuple(i -> 0f0, length(dims)),
     mask::M = Trues(dims),
 ) where {D, M <: AbstractArray{Bool}}
     D == ndims(mask) || throw(DimensionMismatch("D=$D mask size $(size(mask))"))
