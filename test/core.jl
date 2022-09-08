@@ -38,9 +38,12 @@ using Test: @test, @testset, @test_throws, @inferred
 
     ig = @inferred ImageGeom((2,3), (3m,4.), :dsp)
     ig = @inferred ImageGeom(dims=(2,3), deltas=(3m,4.), offsets=:dsp)
-    @assert ig.offsets == (0.5, 0)
+    @test ig.offsets == (0.5, 0)
 
     ig = @inferred ImageGeom( ; dims=(2,3), fovs=(3m,4.))
+
+    ig = @inferred ImageGeom(dims=(2,3), fov=12)
+    @test ig.deltas == (6, 4)
 end
 
 @testset "methods" begin

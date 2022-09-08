@@ -96,6 +96,8 @@ function ImageGeom(
 end
 
 
+_Tfov(fov::RealU) = eltype(1f0 * fov) # ensure at least Float32
+
 """
     ig = ImageGeom( ; dims=(nx,ny), deltas=(1,1), offsets=(0,0), mask=Trues )
 Constructor using named keywords.
@@ -106,8 +108,8 @@ The keyword `fov` applies to all dimensions.
 function ImageGeom( ;
     dims::Dims{D} = (128,128),
     fov::RealU = 0f0,
-    fovs::NTuple{D,RealU} = iszero(fov) ? Float32.(dims) : ntuple(i -> fov, length(dims)),
-    deltas::NTuple{D,RealU} = fovs ./ dims, # ntuple(i -> 0f0, length(dims)),
+    fovs::NTuple{D,RealU} = _Tfov(fov).(iszero(fov) ? dims : ntuple(i -> fov, length(dims))),
+    deltas::NTuple{D,RealU} = fovs ./ dims,
     offsets::Union{Symbol,NTuple{D,Real}} = ntuple(i -> 0f0, length(dims)),
     mask::M = Trues(dims),
 ) where {D, M <: AbstractArray{Bool}}
