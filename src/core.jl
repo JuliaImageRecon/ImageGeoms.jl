@@ -5,7 +5,7 @@ ImageGeom type, constructors, and core methods
 
 export ImageGeom
 export downsample, oversample, expand_nz
-export axis, grids, axisf, axesf, gridf
+export axis, grids, axisf, axesf, gridf, fovs
 
 #using ImageGeoms: downsample, upsample
 using LazyGrids: ndgrid
@@ -61,6 +61,8 @@ Constructor for `ImageGeom` of dimensions `dims`.
 * The `dims`, `deltas` and `offsets` tuples must be same length.
 * Default `mask` is `FillArrays.Trues(dims)` which is akin to `trues(dims)`.
 
+Using `offsets = :dsp` means `offsets = 0.5 .* iseven.(dims)`.
+
 # Example
 
 ```jldoctest
@@ -75,29 +77,40 @@ ImageGeom{2, NTuple{2,Float64}, FillArrays.Trues{2, Tuple{Base.OneTo{Int64}, Bas
 function ImageGeom(
     dims::Dims{D},
     deltas::S,
-    offsets::NTuple{D,Real},
+    offsets::Union{Symbol,NTuple{D,Real}},
     mask::M,
 ) where {D, S <: NTuple{D,RealU}, M <: AbstractArray{Bool,D}}
+    if offsets isa Symbol
+        offsets == :dsp || throw("bad offset $offset")
+        offsets = 0.5 .* iseven.(dims)
+    end
     ImageGeom{D,S,M}(dims, deltas, offsets, mask)
 end
 
 function ImageGeom(
     dims::Dims{D},
     deltas::NTuple{D,RealU} = ntuple(i -> 1, D),
-    offsets::NTuple{D,Real} = ntuple(i -> 0, D),
+    offsets::Union{Symbol,NTuple{D,Real}} = ntuple(i -> 0, D),
 ) where {D}
     ImageGeom(dims, deltas, offsets, Trues(dims))
 end
 
 
+_Tfov(fov::RealU) = eltype(1f0 * fov) # ensure at least Float32
+
 """
     ig = ImageGeom( ; dims=(nx,ny), deltas=(1,1), offsets=(0,0), mask=Trues )
 Constructor using named keywords.
+One can use `fovs` as an alternate keyword,
+in which case `deltas = fovs ./ dims`.
+The keyword `fov` applies to all dimensions.
 """
 function ImageGeom( ;
     dims::Dims{D} = (128,128),
-    deltas::NTuple{D,RealU} = ntuple(i -> 1.0f0, length(dims)),
-    offsets::NTuple{D,Real} = ntuple(i -> 0.0f0, length(dims)),
+    fov::RealU = 0f0,
+    fovs::NTuple{D,RealU} = _Tfov(fov).(iszero(fov) ? dims : ntuple(i -> fov, length(dims))),
+    deltas::NTuple{D,RealU} = fovs ./ dims,
+    offsets::Union{Symbol,NTuple{D,Real}} = ntuple(i -> 0f0, length(dims)),
     mask::M = Trues(dims),
 ) where {D, M <: AbstractArray{Bool}}
     D == ndims(mask) || throw(DimensionMismatch("D=$D mask size $(size(mask))"))
@@ -160,6 +173,13 @@ Base.falses(ig::ImageGeom) = Falses(ig.dims...)
 #Base.zero(ig::ImageGeom{D,S}) where {D, S <: NTuple{D,Any}} = zero(Int32) # alert!
 #Base.zero(ig::ImageGeom{D,S}) where {D, S <: NTuple{D,T}} where {T <: Number} = zero(T)
 #Base.zero(ig::ImageGeom{D,S}) where {D, S <: NTuple{D,T}} where {T <: Real} = zero(T)
+
+
+"""
+    fovs(ig::ImageGeom) = ig.dims .* ig.deltas
+Return tuple of the field of view (FOV) values for all D axes.
+"""
+fovs(ig::ImageGeom) = ig.dims .* ig.deltas
 
 
 """
