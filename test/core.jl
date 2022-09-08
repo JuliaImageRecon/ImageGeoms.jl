@@ -35,6 +35,10 @@ using Test: @test, @testset, @test_throws, @inferred
     @test ig3.deltas == arg3[2]
     @test all(ig3.offsets .≈ arg3[3])
     @test ig3.mask == Trues(ig3.dims)
+
+    ig = @inferred ImageGeom((2,3), (3m,4.), :dsp)
+    ig = @inferred ImageGeom(dims=(2,3), deltas=(3m,4.), offsets=:dsp)
+    @assert ig.offsets == (0.5, 0)
 end
 
 @testset "methods" begin
@@ -50,6 +54,7 @@ end
     @test ndims(ig) == 2
     @test size(ig) == dims
     @test size(ig,1) == dims[1]
+    @test fovs(ig) isa Tuple
 
     # _zero tests
 #   @test zero(ImageGeom((2,3), (3.0,4.0), (0,0))) === zero(Float64)
