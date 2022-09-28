@@ -190,7 +190,7 @@ cf `image_geom_downsample`.
 """
 function downsample(ig::ImageGeom{D,S,M}, down::NTuple{D,Int}) where {D,S,M}
 
-    any(ig.dims .< down) && throw("dims=$(ig.dims) < down=$down")
+    any(<(down), ig.dims) && throw("dims=$(ig.dims) < down=$down")
     down_dim = ig.dims .÷ down # round down (if needed)
     deltas = ig.deltas .* down
     down_offsets = ig.offsets ./ down # adjust offsets to new "pixel" units
