@@ -28,7 +28,6 @@ This page was generated from a single Julia file:
 using MIRTjim: jim, prompt # must be first!
 using ImageGeoms: ImageGeom, MaskCircle, MaskAllButEdge
 using ImageGeoms: maskit, embed, embed!, getindex!, jim #, size
-using UnitfulRecipes
 using Unitful: mm
 using InteractiveUtils: versioninfo
 
