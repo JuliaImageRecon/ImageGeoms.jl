@@ -30,7 +30,6 @@ import ImageGeoms # ellipse
 using AxisArrays
 using MIRTjim: jim, prompt
 using Plots: scatter, plot!, default; default(markerstrokecolor=:auto)
-import UnitfulRecipes
 using Unitful: mm, s
 using InteractiveUtils: versioninfo
 
@@ -125,8 +124,8 @@ end
 showgrid(ig)
 
 
-# Unit labels on the axes due to `UnitfulRecipes.jl`
-prompt();
+# Axes labels can have units
+prompt()
 
 
 # ### Offsets (unitless translation of grid)
