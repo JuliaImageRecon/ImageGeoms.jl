@@ -46,20 +46,20 @@ mask_or(mask::AbstractArray{Bool,3}) =
 mask_or(mask::AbstractArray{Bool}) = throw("ndims(mask) = $(ndims(mask))")
 
 
-
-#=
 """
     mask_outline(mask)
-return outer boundary of 2D mask (or mask_or for 3D)
+Return outer boundary of 2D `mask` (or `mask_or` for 3D).
 """
 function mask_outline(mask::AbstractMatrix{Bool})
-    tmp = imfilter(mask, centered(ones(Int32,3,3))) # dilate
-#    tmp = tmp[2:end-1,2:end-1] # 'same'
-    return (tmp .> 1) .& (.! mask)
+#   out = imfilter(mask, centered(ones(Int32,3,3))) # dilate
+#   out = out[2:end-1,2:end-1] # 'same'
+    out = copy(mask)
+    for s1 in -1:1, s2 in -1:1
+        out .|= circshift(mask, (s1,s2))
+    end
+    return @. (out > 0) & !mask
 end
 mask_outline(mask::AbstractArray{Bool,3}) = mask_outline(mask_or(mask))
-=#
-
 
 
 """
@@ -99,7 +99,7 @@ Out:
 function embed(x::AbstractMatrix{<:Number}, mask::AbstractArray{Bool})
     L = size(x,2)
     out = zeros(eltype(x), prod(size(mask)), L)
-    for l=1:L
+    for l in 1:L
         out[:,l] = vec(embed(x[:,l], mask))
     end
     reshape(out, size(mask)..., L)

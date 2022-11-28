@@ -1,7 +1,7 @@
 # mask.jl
 
 using ImageGeoms: embed, embed!, mask_or, maskit, getindex!
-#using ImageGeoms: mask_outline
+using ImageGeoms: mask_outline
 
 using Test: @test, @testset, @test_throws, @inferred
 #using SparseArrays: sparse
@@ -44,15 +44,21 @@ function mask_or_test()
 end
 
 
-#=
-function mask_outline_test() # todo
+function mask_outline_test()
     mask2 = trues(3,4)
-    @test (@inferred mask_outline(mask2)) == falses(3,4)
+    out2 = @inferred mask_outline(mask2)
+    @test out2 == falses(3,4)
     mask3 = trues(3,4,5)
-    @test (@inferred mask_outline(mask3)) == falses(3,4)
+    out3 = @inferred mask_outline(mask3)
+    @test out3 == falses(3,4)
+    mask4 = trues(5,6)
+    f = (a,b) -> [a, a+1, b-1, b]
+    mask4[f(begin, end), begin:end] .= 0
+    mask4[begin:end, f(begin,end)] .= 0
+    out4 = @inferred mask_outline(mask4)
+    @test count(out4) == 10
     true
 end
-=#
 
 function maskit_test()
     mask = [false true true; true false false]
@@ -75,11 +81,9 @@ end
 @testset "mask_or" begin
     @test mask_or_test()
 end
-#=
 @testset "mask_outline" begin
    @test mask_outline_test()
 end
-=#
 @testset "maskit" begin
     @test maskit_test()
 end
