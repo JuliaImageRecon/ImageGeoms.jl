@@ -16,9 +16,9 @@ This page was generated from a single Julia file:
 
 #md # The corresponding notebook can be viewed in
 #md # [nbviewer](http://nbviewer.jupyter.org/) here:
-#md # [`1-overview.ipynb`](@__NBVIEWER_ROOT_URL__/1-overview.ipynb),
+#md # [`2-mask.ipynb`](@__NBVIEWER_ROOT_URL__/2-mask.ipynb),
 #md # and opened in [binder](https://mybinder.org/) here:
-#md # [`1-overview.ipynb`](@__BINDER_ROOT_URL__/1-overview.ipynb).
+#md # [`2-mask.ipynb`](@__BINDER_ROOT_URL__/2-mask.ipynb).
 
 
 # ### Setup
@@ -28,8 +28,8 @@ This page was generated from a single Julia file:
 using MIRTjim: jim, prompt # must be first!
 using ImageGeoms: ImageGeom, MaskCircle, MaskAllButEdge
 using ImageGeoms: maskit, embed, embed!, getindex!, jim #, size
+using ImageGeoms: mask_outline
 using Unitful: mm
-using InteractiveUtils: versioninfo
 
 
 # The following line is helpful when running this file as a script;
@@ -38,9 +38,9 @@ using InteractiveUtils: versioninfo
 isinteractive() ? jim(:prompt, true) : prompt(:draw);
 
 
-# ### Mask overview
-
 #=
+## Mask overview
+
 In tomographic image reconstruction, patients are usually more "round"
 than "square" so often we only want to estimate the pixels inside some
 support `mask`: a `Bool` array indicating which pixels are to be estimated.
@@ -79,7 +79,7 @@ ig = ImageGeom(MaskAllButEdge() ; dims=(32,32,16))
 jim(ig)
 
 
-# ### Mask operations
+# ## Mask operations
 
 # Often we need to extract the pixel values within a mask:
 
@@ -95,7 +95,7 @@ core = ramp[ig.mask]
 # Or equivalently:
 maskit(ramp, ig.mask)
 
-# Conversely, we can embed that list of pixels back into an array:
+# Conversely, we can `embed` that list of pixels back into an array:
 array = embed(core, ig.mask)
 
 
@@ -108,13 +108,13 @@ array = collect(zeros(Float16, ig))
 embed!(array, core, ig.mask)
 
 
-# ### Reproducibility
-
-# This page was generated with the following version of Julia:
-
-io = IOBuffer(); versioninfo(io); split(String(take!(io)), '\n')
-
-
-# And with the following package versions
-
-import Pkg; Pkg.status()
+#=
+## Mask outline
+Sometimes we need the outline of the mask.
+=#
+ig = ImageGeom(MaskCircle() ; dims=(40,32))
+outline = mask_outline(ig.mask)
+jim(
+ jim(ig.mask, "Mask"; prompt=false),
+ jim(outline, "Outline"; prompt=false),
+)
