@@ -147,12 +147,12 @@ function Base.show(io::IO, ::MIME"text/plain", ig::ImageGeom{D}) where {D}
     t = replace(string(t), string(typeof(ig.deltas)) => string(_typeof(ig.deltas)))
     println(io, t)
     for f in (:dims, :deltas, :offsets)
-        p = getproperty(ig, f)
+        p = getfield(ig, f)
         t = _typeof(p)
         println(io, " ", f, "::", t, " ", p)
     end
     f = :mask
-    mask = getproperty(ig, f)
+    mask = getfield(ig, f)
     print(io, " ", f, ":", " ", summary(mask))
     println(io, " {", count(mask), " of ", length(mask), "}")
 end

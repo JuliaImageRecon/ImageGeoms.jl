@@ -26,11 +26,8 @@ include("imresize.jl")
 include("makemask.jl")
 include("mask.jl")
 
-#include("property.jl") # exclude due to type inference issues
-
-# support MIRTjim iff user has loaded it
-
 function __init__()
+    # support MIRTjim iff user has loaded it
     @require MIRTjim = "170b2178-6dee-4cb0-8729-b3e8b57834cc" include("jim.jl")
 end
 
