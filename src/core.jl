@@ -96,7 +96,7 @@ function ImageGeom(
 end
 
 
-_Tfov(fov::RealU) = eltype(1f0 * fov) # ensure at least Float32
+_Tfov(fov::RealU) = typeof(1f0 * fov) # ensure at least Float32
 
 """
     ig = ImageGeom( ; dims=(nx,ny), deltas=(1,1), offsets=(0,0), mask=Trues )
