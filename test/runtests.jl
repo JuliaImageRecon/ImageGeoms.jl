@@ -4,7 +4,6 @@ using Test: @test, @testset, detect_ambiguities
 using ImageGeoms
 
 include("aqua.jl")
-include("helper.jl")
 
 include("core.jl")
 include("imresize.jl")
