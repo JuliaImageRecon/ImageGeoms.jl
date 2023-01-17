@@ -1,8 +1,6 @@
-#---------------------------------------------------------
-# # [ImageGeoms overview](@id 1-overview)
-#---------------------------------------------------------
-
 #=
+# [ImageGeoms overview](@id 1-overview)
+
 This page explains the Julia package
 [`ImageGeoms`](https://github.com/JuliaImageRecon/ImageGeoms.jl).
 
@@ -15,7 +13,7 @@ This page was generated from a single Julia file:
 #md # using the "Edit on GitHub" link in the top right.
 
 #md # The corresponding notebook can be viewed in
-#md # [nbviewer](http://nbviewer.jupyter.org/) here:
+#md # [nbviewer](https://nbviewer.org/) here:
 #md # [`1-overview.ipynb`](@__NBVIEWER_ROOT_URL__/1-overview.ipynb),
 #md # and opened in [binder](https://mybinder.org/) here:
 #md # [`1-overview.ipynb`](@__BINDER_ROOT_URL__/1-overview.ipynb).
@@ -39,10 +37,9 @@ using InteractiveUtils: versioninfo
 
 isinteractive() ? jim(:prompt, true) : prompt(:draw);
 
-# ### Overview
-
-
 #=
+## Overview
+
 When performing tomographic image reconstruction,
 one must specify the geometry of the grid of image pixels.
 (In contrast, for image denoising and image deblurring problems,
@@ -76,19 +73,23 @@ ig = ImageGeom( (512,512,128), (1,1,2), (0,0,0) )
 ig = ImageGeom( dims=(512,512,128), deltas=(1,1,2), offsets=(0,0,0) )
 
 
-# ### Units
+#=
+## Units
+#
+The pixel dimensions `deltas` can (and should!) be values with units.
 
-# The pixel dimensions `deltas` can (and should!) be values with units.
-
-# Here is an example for a video (2D+time) with 12 frames per second:
+Here is an example for a video (2D+time) with 12 frames per second:
+=#
 
 ig = ImageGeom( dims=(640,480,1000), deltas=(1mm,1mm,(1//12)s) )
 
 
-# ### Methods
+#=
+## Methods
 
-# An ImageGeom object has quite a few methods;
-# `axes` and `axis` are especially useful:
+An ImageGeom object has quite a few methods;
+`axes` and `axis` are especially useful:
+=#
 
 ig = ImageGeom( dims=(7,8), deltas=(3,2), offsets=(0,0.5) )
 axis(ig, 2)
@@ -128,10 +129,12 @@ showgrid(ig)
 prompt()
 
 
-# ### Offsets (unitless translation of grid)
+#=
+## Offsets (unitless translation of grid)
 
-# The default `offsets` are zeros,
-# corresponding to symmetric sampling around origin:
+The default `offsets` are zeros,
+corresponding to symmetric sampling around origin:
+=#
 
 ig = ImageGeom( dims=(12,10), deltas=(1mm,1mm) )
 p = showgrid(ig)
@@ -165,7 +168,7 @@ One must be careful when using operations like `imrotate` or `fft`.
 
 
 #=
-### Odd dimensions
+## Odd dimensions
 If an image axis has an odd dimension,
 then each middle pixel along that axis
 is centered at 0,
@@ -182,7 +185,7 @@ plot!(po)
 prompt();
 
 
-# ### AxisArrays
+# ## AxisArrays
 
 #=
 There is a natural connection between `ImageGeom` and `AxisArrays`.
@@ -198,10 +201,12 @@ jim(za, "AxisArray example")
 prompt();
 
 
-# ### Resizing
+#=
+## Resizing
 
-# Often we have a target grid in mind but want coarser sampling for debugging.
-# The `downsample` method is useful for this.
+Often we have a target grid in mind but want coarser sampling for debugging.
+The `downsample` method is useful for this.
+=#
 
 ig = ImageGeom( dims = (512,512), deltas = (500mm,500mm) ./ 512 )
 ig_down = downsample(ig, 4)
@@ -214,7 +219,7 @@ ig_over = oversample(ig, (2,2))
 
 
 #=
-### Frequency domain axes
+## Frequency domain axes
 For related packages like
 [`ImagePhantoms`](https://github.com/JuliaImageRecon/ImagePhantoms.jl),
 there are also `axisf` and `axesf` methods

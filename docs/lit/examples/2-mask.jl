@@ -1,8 +1,6 @@
-#---------------------------------------------------------
-# # [Support mask](@id 2-mask)
-#---------------------------------------------------------
-
 #=
+# [Support mask](@id 2-mask)
+
 This page explains the `mask` aspects of the Julia package
 [`ImageGeoms`](https://github.com/JuliaImageRecon/ImageGeoms.jl).
 
@@ -15,7 +13,7 @@ This page was generated from a single Julia file:
 #md # using the "Edit on GitHub" link in the top right.
 
 #md # The corresponding notebook can be viewed in
-#md # [nbviewer](http://nbviewer.jupyter.org/) here:
+#md # [nbviewer](https://nbviewer.org/) here:
 #md # [`2-mask.ipynb`](@__NBVIEWER_ROOT_URL__/2-mask.ipynb),
 #md # and opened in [binder](https://mybinder.org/) here:
 #md # [`2-mask.ipynb`](@__BINDER_ROOT_URL__/2-mask.ipynb).
@@ -68,7 +66,7 @@ jim(ig)
 
 #=
 Note that `jim` displays the axes with the units naturally;
-see [MIRTjim.jl](http://github.com/JeffFessler/MIRTjim.jl).
+see [MIRTjim.jl](https://github.com/JeffFessler/MIRTjim.jl).
 
 A 3D mask can be hard to visualize, so there is a `mask_or` method
 that collapses it to 2D:
