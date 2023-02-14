@@ -3,20 +3,9 @@
 
 This page explains the Julia package
 [`ImageGeoms`](https://github.com/JuliaImageRecon/ImageGeoms.jl).
-
-This page was generated from a single Julia file:
-[1-example.jl](@__REPO_ROOT_URL__/1-overview.jl).
 =#
 
-#md # In any such Julia documentation,
-#md # you can access the source code
-#md # using the "Edit on GitHub" link in the top right.
-
-#md # The corresponding notebook can be viewed in
-#md # [nbviewer](https://nbviewer.org/) here:
-#md # [`1-overview.ipynb`](@__NBVIEWER_ROOT_URL__/1-overview.ipynb),
-#md # and opened in [binder](https://mybinder.org/) here:
-#md # [`1-overview.ipynb`](@__BINDER_ROOT_URL__/1-overview.ipynb).
+#srcURL
 
 
 # ### Setup
@@ -238,14 +227,4 @@ axisf(ig, 1)
 axisf(ig, 2)
 
 
-
-# ### Reproducibility
-
-# This page was generated with the following version of Julia:
-
-io = IOBuffer(); versioninfo(io); split(String(take!(io)), '\n')
-
-
-# And with the following package versions
-
-import Pkg; Pkg.status()
+include("../../../inc/reproduce.jl")
