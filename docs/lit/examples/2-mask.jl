@@ -3,20 +3,9 @@
 
 This page explains the `mask` aspects of the Julia package
 [`ImageGeoms`](https://github.com/JuliaImageRecon/ImageGeoms.jl).
-
-This page was generated from a single Julia file:
-[2-mask.jl](@__REPO_ROOT_URL__/2-mask.jl).
 =#
 
-#md # In any such Julia documentation,
-#md # you can access the source code
-#md # using the "Edit on GitHub" link in the top right.
-
-#md # The corresponding notebook can be viewed in
-#md # [nbviewer](https://nbviewer.org/) here:
-#md # [`2-mask.ipynb`](@__NBVIEWER_ROOT_URL__/2-mask.ipynb),
-#md # and opened in [binder](https://mybinder.org/) here:
-#md # [`2-mask.ipynb`](@__BINDER_ROOT_URL__/2-mask.ipynb).
+#srcURL
 
 
 # ### Setup
