@@ -61,7 +61,7 @@ see the
 
 ### Compatibility
 
-Tested with Julia ≥ 1.6.
+Tested with Julia ≥ 1.8.
 
 <!-- URLs -->
 [action-img]: https://github.com/JuliaImageRecon/ImageGeoms.jl/workflows/CI/badge.svg
