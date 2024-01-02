@@ -12,10 +12,10 @@ This page explains the `mask` aspects of the Julia package
 
 # Packages needed here.
 
-using MIRTjim: jim, prompt # must be first!
 using ImageGeoms: ImageGeom, MaskCircle, MaskAllButEdge
-using ImageGeoms: maskit, embed, embed!, getindex!, jim #, size
+using ImageGeoms: maskit, embed, embed!, getindex! # +jim +size
 using ImageGeoms: mask_outline
+using MIRTjim: jim, prompt
 using Unitful: mm
 
 
