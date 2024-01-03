@@ -4,8 +4,6 @@ Module for describing image geometries.
 """
 module ImageGeoms
 
-using Requires: @require
-
 const RealU = Number # Union{Real, Unitful.Length}
 
 """
@@ -25,10 +23,5 @@ include("core.jl")
 include("imresize.jl")
 include("makemask.jl")
 include("mask.jl")
-
-function __init__()
-    # support MIRTjim iff user has loaded it
-    @require MIRTjim = "170b2178-6dee-4cb0-8729-b3e8b57834cc" include("jim.jl")
-end
 
 end # module

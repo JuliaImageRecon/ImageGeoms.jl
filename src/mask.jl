@@ -89,11 +89,11 @@ embed(v::AbstractVector{T}, mask::AbstractArray{Bool} ;
     array = embed(matrix::AbstractMatrix{<:Number}, mask::AbstractArray{Bool})
 
 Embed each column of `matrix` into `mask` then `cat` along next dimension
-In:
+# In:
 * `matrix [count(mask) L]`
 * `mask [(N)]`
 
-Out:
+# Out:
 * `array [(N) L]`
 """
 function embed(x::AbstractMatrix{<:Number}, mask::AbstractArray{Bool})
