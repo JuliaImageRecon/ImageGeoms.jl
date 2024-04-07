@@ -161,9 +161,9 @@ Base.ndims(ig::ImageGeom{D}) where {D} = D
 Base.size(ig::ImageGeom) = ig.dims
 Base.size(ig::ImageGeom, d::Int) = ig.dims[d]
 
-Base.zeros(T::DataType, ig::ImageGeom) = Zeros{T}(ig.dims...)
+Base.zeros(T::Type{<:Number}, ig::ImageGeom) = Zeros{T}(ig.dims...)
 Base.zeros(ig::ImageGeom) = zeros(Float32, ig)
-Base.ones(T::DataType, ig::ImageGeom) = Ones{T}(ig.dims...)
+Base.ones(T::Type{<:Number}, ig::ImageGeom) = Ones{T}(ig.dims...)
 Base.ones(ig::ImageGeom) = ones(Float32, ig)
 
 Base.trues(ig::ImageGeom) = Trues(ig.dims...)
