@@ -9,7 +9,7 @@ LazyGrids = "7031d0ef-c40d-4431-b2f8-61a8d2f650db"
 
 [compat]
 FillArrays = "1"
-LazyGrids = "0.4, 0.5"
+LazyGrids = "0.4, 0.5, 1"
 MIRTjim = "0.23"
 julia = "1.10"
 
