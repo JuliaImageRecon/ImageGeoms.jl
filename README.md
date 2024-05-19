@@ -10,6 +10,10 @@ https://github.com/JuliaImageRecon/ImageGeoms.jl
 [![license][license-img]][license-url]
 [![Aqua QA][aqua-img]][aqua-url]
 [![code-style][code-blue-img]][code-blue-url]
+[![deps](https://juliahub.com/docs/ImageGeoms/deps.svg)](https://juliahub.com/ui/Packages/ImageGeoms)
+[![version](https://juliahub.com/docs/ImageGeoms/version.svg)](https://juliahub.com/ui/Packages/ImageGeoms)
+[![pkgeval](https://juliahub.com/docs/ImageGeoms/pkgeval.svg)](https://juliahub.com/ui/Packages/ImageGeoms)
+
 
 This Julia package exports the type `ImageGeom`
 and corresponding constructor methods.
