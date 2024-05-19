@@ -70,10 +70,10 @@ Tested with Julia ≥ 1.10.
 <!-- URLs -->
 [action-img]: https://github.com/JuliaImageRecon/ImageGeoms.jl/workflows/CI/badge.svg
 [action-url]: https://github.com/JuliaImageRecon/ImageGeoms.jl/actions
+[aqua-img]: https://img.shields.io/badge/Aqua.jl-%F0%9F%8C%A2-aqua.svg
+[aqua-url]: https://github.com/JuliaTesting/Aqua.jl
 [build-img]: https://github.com/JuliaImageRecon/ImageGeoms.jl/workflows/CI/badge.svg?branch=main
 [build-url]: https://github.com/JuliaImageRecon/ImageGeoms.jl/actions?query=workflow%3ACI+branch%3Amain
-[pkgeval-img]: https://juliaci.github.io/NanosoldierReports/pkgeval_badges/I/ImageGeoms.svg
-[pkgeval-url]: https://juliaci.github.io/NanosoldierReports/pkgeval_badges/I/ImageGeoms.html
 [code-blue-img]: https://img.shields.io/badge/code%20style-blue-4495d1.svg
 [code-blue-url]: https://github.com/invenia/BlueStyle
 [codecov-img]: https://codecov.io/github/JuliaImageRecon/ImageGeoms.jl/coverage.svg?branch=main
@@ -84,5 +84,5 @@ Tested with Julia ≥ 1.10.
 [docs-dev-url]: https://JuliaImageRecon.github.io/ImageGeoms.jl/dev
 [license-img]: https://img.shields.io/badge/license-MIT-brightgreen.svg
 [license-url]: LICENSE
-[aqua-img]: https://img.shields.io/badge/Aqua.jl-%F0%9F%8C%A2-aqua.svg
-[aqua-url]: https://github.com/JuliaTesting/Aqua.jl
+[pkgeval-img]: https://juliaci.github.io/NanosoldierReports/pkgeval_badges/I/ImageGeoms.svg
+[pkgeval-url]: https://juliaci.github.io/NanosoldierReports/pkgeval_badges/I/ImageGeoms.html
