@@ -1,4 +1,4 @@
-using ImageGeoms
+using ImageGeoms: ImageGeoms
 import Aqua
 using Test: @testset
 
