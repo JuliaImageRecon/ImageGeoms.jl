@@ -7,14 +7,14 @@ version = "0.11.2"
 FillArrays = "1a297f60-69ca-5386-bcde-b61e274b549b"
 LazyGrids = "7031d0ef-c40d-4431-b2f8-61a8d2f650db"
 
-[compat]
-FillArrays = "1"
-LazyGrids = "1"
-MIRTjim = "0.25, 0.26"
-julia = "1.12"
-
 [weakdeps]
 MIRTjim = "170b2178-6dee-4cb0-8729-b3e8b57834cc"
 
 [extensions]
 ImageGeoms_MIRTjim = "MIRTjim"
+
+[compat]
+FillArrays = "1"
+LazyGrids = "1"
+MIRTjim = "0.25, 0.26"
+julia = "1.10"
