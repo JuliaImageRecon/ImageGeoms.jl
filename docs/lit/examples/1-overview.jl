@@ -64,7 +64,7 @@ ig = ImageGeom( dims=(512,512,128), deltas=(1,1,2), offsets=(0,0,0) )
 
 #=
 ## Units
-#
+
 The pixel dimensions `deltas` can (and should!) be values with units.
 
 Here is an example for a video (2D+time) with 12 frames per second:
