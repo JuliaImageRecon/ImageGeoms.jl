@@ -1,6 +1,7 @@
 [deps]
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
 FillArrays = "1a297f60-69ca-5386-bcde-b61e274b549b"
+ImageGeoms = "9ee76f2b-840d-4475-b6d6-e485c9297852"
 MIRTjim = "170b2178-6dee-4cb0-8729-b3e8b57834cc"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
