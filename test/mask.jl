@@ -14,6 +14,8 @@ function embed_test()
     @test (@inferred embed(v,mask)) == a
     @test (@inferred embed([v 2v], mask)) == cat(dims=3, a, 2a)
     @test (@inferred embed!(b, v, mask ; filler=-1)) == a + (-1) * .!mask
+    @test (@inferred embed(v, mask ; filler=-1)) == a + (-1) * .!mask
+    @test embed([1.5, 2.5], [true, false, true] ; filler=0) == [1.5, 0, 2.5]
 #   @test embed(sparse(1:3),mask) == sparse([0 2 3; 1 0 0]) # later
     true
 end
@@ -28,6 +30,7 @@ function getindex!_test()
     y0 = x[mask]
     y1 = Array{T}(undef, K)
     @test 0 == @allocated getindex!(y1, x, mask)
+    @test getindex!(T[], x, falses(N...)) == T[] # empty mask
     @test y0 == y1
     true
 end
@@ -57,6 +60,9 @@ function mask_outline_test()
     mask4[begin:end, f(begin,end)] .= 0
     out4 = @inferred mask_outline(mask4)
     @test count(out4) == 10
+    mask5 = falses(5,5); mask5[1,3] = true # no wrap-around at edges
+    @test findall(mask_outline(mask5)) ==
+        CartesianIndex.([(1,2), (2,2), (2,3), (1,4), (2,4)])
     true
 end
 

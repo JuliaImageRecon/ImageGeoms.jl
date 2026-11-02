@@ -81,7 +81,7 @@ function ImageGeom(
     mask::M,
 ) where {D, S <: NTuple{D,RealU}, M <: AbstractArray{Bool,D}}
     if offsets isa Symbol
-        offsets == :dsp || throw("bad offset $offset")
+        offsets == :dsp || throw("bad offset $offsets")
         offsets = 0.5 .* iseven.(dims)
     end
     ImageGeom{D,S,M}(dims, deltas, offsets, mask)
@@ -188,7 +188,7 @@ Down sample an image geometry by the factor `down`.
 Image size `ig.dims` must be ≥ `down`.
 cf `image_geom_downsample`.
 """
-function downsample(ig::ImageGeom{D,S,M}, down::NTuple{D,Int}) where {D,S,M}
+function downsample(ig::ImageGeom{D}, down::NTuple{D,Int}) where {D}
 
     any(ig.dims .< down) && throw("dims=$(ig.dims) < down=$down")
     down_dim = ig.dims .÷ down # round down (if needed)
@@ -203,7 +203,7 @@ function downsample(ig::ImageGeom{D,S,M}, down::NTuple{D,Int}) where {D,S,M}
         down_mask = downsample(v, down)
     end
 
-    return ImageGeom{D,S,M}(down_dim, deltas, down_offsets, down_mask)
+    return ImageGeom(down_dim, deltas, down_offsets, down_mask)
 end
 
 downsample(ig::ImageGeom{D}, down::Int) where {D} =
@@ -233,16 +233,19 @@ oversample(ig::ImageGeom{D}, over::Int) where {D} =
     ig_new = expand_nz(ig::ImageGeom{3}, nz_pad::Int)
 Pad both ends along z.
 """
-function expand_nz(ig::ImageGeom{3,S,M}, nz_pad::Int) where {S,M}
-    out_nz = size(ig,3) + 2*nz_pad
+function expand_nz(ig::ImageGeom{3}, nz_pad::Int)
+    nz_pad ≥ 0 || throw(ArgumentError("nz_pad=$nz_pad < 0"))
+    nz = size(ig,3)
+    out_nz = nz + 2*nz_pad
     if ig.mask isa Trues
         out_mask = Trues(ig.dims[1:2]..., out_nz)
     else
-        out_mask = cat(dims=3, repeat(ig.mask[:,:,1], 1, 1, nz_pad),
-            ig.mask, repeat(ig.mask[:,:,end], 1, 1, nz_pad),
-        )
+        out_mask = similar(ig.mask, ig.dims[1], ig.dims[2], out_nz)
+        out_mask[:, :, 1:nz_pad] .= view(ig.mask, :, :, 1:1)
+        out_mask[:, :, nz_pad .+ (1:nz)] .= ig.mask
+        out_mask[:, :, (nz_pad+nz+1):out_nz] .= view(ig.mask, :, :, nz:nz)
     end
-    return ImageGeom{3,S,M}((ig.dims[1], ig.dims[2], out_nz),
+    return ImageGeom((ig.dims[1], ig.dims[2], out_nz),
         ig.deltas, ig.offsets, out_mask,
     )
 end

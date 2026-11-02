@@ -101,4 +101,11 @@ end
     dims = (6,3)
     ig = @inferred ImageGeom(; dims)
     @test_throws String downsample(ig, (2,4))
+    @test_throws String ImageGeom((2,3), (1,1), :bad)
+
+    # non-BitArray masks
+    ig = ImageGeom(dims=(4,6), mask=Matrix{Bool}(trues(4,6)))
+    @test downsample(ig, 2).mask == trues(2,3)
+    ig = ImageGeom(dims=(4,6,2), mask=view(trues(4,6,3), :, :, 1:2))
+    @test expand_nz(ig, 1).mask == trues(4,6,4)
 end
