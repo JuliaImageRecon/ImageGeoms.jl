@@ -39,6 +39,9 @@ using Test: @test, @testset, @test_throws, @inferred
     x = ones(Bool, 6, 7)
     y = falses(2,2)
     @test_throws DimensionMismatch downsample!(y, x, (2,2))
+
+    y = trues(2,2) # output must be overwritten, not or-ed
+    @test downsample!(y, falses(4,4), (2,2)) == falses(2,2)
 end
 
 @testset "upsample" begin
@@ -55,4 +58,7 @@ end
     @test y == trues(8, 3)
 
     @test_throws DimensionMismatch upsample!(y, x, (2,2))
+
+    y = trues(4,4) # output must be overwritten, not or-ed
+    @test upsample!(y, falses(2,2), (2,2)) == falses(4,4)
 end

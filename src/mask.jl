@@ -27,8 +27,10 @@ https://discourse.julialang.org/t/efficient-non-allocating-in-place-getindex-for
 ) where {T,D}
     axes(y) == (Base.OneTo(count(mask)),) || throw("y axes $(axes(y))")
     axes(mask) == axes(x) || throw(DimensionMismatch("x vs mask"))
+    ilast = findlast(mask)
+    isnothing(ilast) && return y # empty mask
     accum = 1
-    @inbounds for i in 1:LinearIndices(mask)[findlast(mask)]
+    @inbounds for i in 1:LinearIndices(mask)[ilast]
         y[accum] = x[i]
         accum += mask[i]
     end
@@ -51,13 +53,17 @@ mask_or(mask::AbstractArray{Bool}) = throw("ndims(mask) = $(ndims(mask))")
 Return outer boundary of 2D `mask` (or `mask_or` for 3D).
 """
 function mask_outline(mask::AbstractMatrix{Bool})
-#   out = imfilter(mask, centered(ones(Int32,3,3))) # dilate
-#   out = out[2:end-1,2:end-1] # 'same'
-    out = copy(mask)
-    for s1 in -1:1, s2 in -1:1
-        out .|= circshift(mask, (s1,s2))
+    out = falses(size(mask)) # 3×3 dilation without wrap-around
+    R = CartesianIndices(mask)
+    Ifirst, Ilast = first(R), last(R)
+    I1 = oneunit(Ifirst)
+    for i in R
+        mask[i] || continue
+        for j in max(Ifirst, i - I1):min(Ilast, i + I1)
+            out[j - Ifirst + I1] = true
+        end
     end
-    return @. (out > 0) & !mask
+    return @. out & !mask
 end
 mask_outline(mask::AbstractArray{Bool,3}) = mask_outline(mask_or(mask))
 
@@ -80,9 +86,12 @@ embed!(array::AbstractArray{T,D}, v::AbstractVector{<:Number},
 Embed vector `v` of length `count(mask)`
 into elements of an array where `mask` is `true`; see `embed!`.
 """
-embed(v::AbstractVector{T}, mask::AbstractArray{Bool} ;
-    filler::Number = zero(T)) where {T <: Number} =
-    embed!(fill(filler, size(mask)), v, mask)
+function embed(v::AbstractVector{T}, mask::AbstractArray{Bool} ;
+    filler::Number = zero(T),
+) where {T <: Number}
+    S = promote_type(T, typeof(filler))
+    return embed!(Array{S}(undef, size(mask)), v, mask; filler = S(filler))
+end
 
 
 """

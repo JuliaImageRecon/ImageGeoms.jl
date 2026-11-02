@@ -20,6 +20,7 @@ function downsample!(
 ) where {D}
     size(y) == ceil.(Int, size(x) ./ down) || throw(DimensionMismatch())
     p = prod(down)
+    fill!(y, false)
     for i in CartesianIndices(x)
         j = CartesianIndex( (((Tuple(i) .- 1) .÷ down) .+ 1)... )
         @inbounds y[j] |= x[i]
@@ -58,7 +59,7 @@ function upsample!(
     p = prod(up)
     for j in CartesianIndices(y)
         i = CartesianIndex( (((Tuple(j) .- 1) .÷ up) .+ 1)... )
-        @inbounds y[j] |= x[i]
+        @inbounds y[j] = x[i]
     end
     return y
 end
