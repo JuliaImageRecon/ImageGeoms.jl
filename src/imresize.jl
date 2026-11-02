@@ -18,11 +18,11 @@ function downsample!(
     x::Union{BitArray{D}, AbstractArray{Bool,D}},
     down::NTuple{D,Int},
 ) where {D}
-    size(y) == ceil.(Int, size(x) ./ down) || throw(DimensionMismatch())
-    p = prod(down)
+    size(y) == cld.(size(x), down) || throw(DimensionMismatch())
     fill!(y, false)
     for i in CartesianIndices(x)
-        j = CartesianIndex( (((Tuple(i) .- 1) .÷ down) .+ 1)... )
+        ti = Tuple(i)
+        j = CartesianIndex(@. (ti - 1) ÷ down + 1)
         @inbounds y[j] |= x[i]
     end
     return y
@@ -40,7 +40,7 @@ function downsample(
     x::Union{BitArray{D}, AbstractArray{Bool,D}},
     down::NTuple{D,Int},
 ) where {D}
-    y = falses(ceil.(Int, size(x) ./ down))
+    y = falses(cld.(size(x), down))
     return downsample!(y, x, down)
 end
 
@@ -56,9 +56,9 @@ function upsample!(
     up::NTuple{D,Int},
 ) where {D}
     size(y) == size(x) .* up || throw(DimensionMismatch())
-    p = prod(up)
     for j in CartesianIndices(y)
-        i = CartesianIndex( (((Tuple(j) .- 1) .÷ up) .+ 1)... )
+        tj = Tuple(j)
+        i = CartesianIndex(@. (tj - 1) ÷ up + 1)
         @inbounds y[j] = x[i]
     end
     return y

@@ -61,7 +61,7 @@ Constructor for `ImageGeom` of dimensions `dims`.
 * The `dims`, `deltas` and `offsets` tuples must be same length.
 * Default `mask` is `FillArrays.Trues(dims)` which is akin to `trues(dims)`.
 
-Using `offsets = :dsp` means `offsets = 0.5 .* iseven.(dims)`.
+Using `offsets = :dsp` means `offsets = @. 0.5 * iseven(dims)`.
 
 # Example
 
@@ -82,7 +82,7 @@ function ImageGeom(
 ) where {D, S <: NTuple{D,RealU}, M <: AbstractArray{Bool,D}}
     if offsets isa Symbol
         offsets == :dsp || throw("bad offset $offsets")
-        offsets = 0.5 .* iseven.(dims)
+        offsets = @. 0.5 * iseven(dims)
     end
     ImageGeom{D,S,M}(dims, deltas, offsets, mask)
 end
@@ -199,7 +199,7 @@ function downsample(ig::ImageGeom{D}, down::NTuple{D,Int}) where {D}
     if ig.mask isa Trues # || all(ig.mask)
         down_mask = Trues(down_dim)
     else
-        v = view(ig.mask, Base.OneTo.(down_dim .* down)...)
+        v = view(ig.mask, (@. Base.OneTo(down_dim * down))...)
         down_mask = downsample(v, down)
     end
 
