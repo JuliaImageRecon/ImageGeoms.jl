@@ -44,7 +44,17 @@ compress 3D mask to 2D by logical `or` along `z` direction
 """
 @inline mask_or(mask::AbstractArray{Bool,2}) = mask
 mask_or(mask::AbstractArray{Bool,3}) =
-    dropdims(sum(mask, dims=3) .> 0, dims=3)
+    dropdims(any(mask, dims=3), dims=3)
+# For BitArray, slice copies and `.|=` operate on whole 64-bit chunks,
+# which is much faster than the generic `any` reduction.
+function mask_or(mask::BitArray{3})
+    size(mask,3) == 0 && return falses(size(mask,1), size(mask,2))
+    out = mask[:,:,1]
+    for k in 2:size(mask,3)
+        out .|= mask[:,:,k]
+    end
+    return out
+end
 mask_or(mask::AbstractArray{Bool}) = throw("ndims(mask) = $(ndims(mask))")
 
 
@@ -107,10 +117,8 @@ Embed each column of `matrix` into `mask` then `cat` along next dimension
 """
 function embed(x::AbstractMatrix{<:Number}, mask::AbstractArray{Bool})
     L = size(x,2)
-    out = zeros(eltype(x), prod(size(mask)), L)
-    for l in 1:L
-        out[:,l] = vec(embed(x[:,l], mask))
-    end
+    out = zeros(eltype(x), length(mask), L)
+    out[vec(mask),:] = x
     reshape(out, size(mask)..., L)
 end
 

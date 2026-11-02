@@ -2,6 +2,7 @@
 
 using ImageGeoms: embed, embed!, mask_or, maskit, getindex!
 using ImageGeoms: mask_outline
+using FillArrays: Trues
 
 using Test: @test, @testset, @test_throws, @inferred
 #using SparseArrays: sparse
@@ -13,6 +14,7 @@ function embed_test()
     b = similar(a)
     @test (@inferred embed(v,mask)) == a
     @test (@inferred embed([v 2v], mask)) == cat(dims=3, a, 2a)
+    @test embed([1 4; 2 5; 3 6], Trues(3)) == [1 4; 2 5; 3 6]
     @test (@inferred embed!(b, v, mask ; filler=-1)) == a + (-1) * .!mask
     @test (@inferred embed(v, mask ; filler=-1)) == a + (-1) * .!mask
     @test embed([1.5, 2.5], [true, false, true] ; filler=0) == [1.5, 0, 2.5]
@@ -42,6 +44,11 @@ function mask_or_test()
     @test sum(mask_or(mask2)) == length(mask2)
     mask3 = trues(3,4,5)
     @test (@inferred mask_or(mask3)) == trues(3,4)
+    mask3 = rand(5,7,3) .< 0.3 # BitArray method
+    ref = mask3[:,:,1] .| mask3[:,:,2] .| mask3[:,:,3]
+    @test (@inferred mask_or(mask3)) == ref
+    @test (@inferred mask_or(Array(mask3))) == ref # generic method
+    @test mask_or(falses(3,4,0)) == falses(3,4)
     @test_throws String mask_or(trues(1,))
     true
 end
